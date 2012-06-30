@@ -1,0 +1,11 @@
+C:\dev\Projects\predandprey\predandprey\Tests\obj\Debug\ResolveAssemblyReference.cache
+C:\dev\Projects\predandprey\predandprey\Tests\bin\Debug\PredAndPrey.Tests.dll
+C:\dev\Projects\predandprey\predandprey\Tests\bin\Debug\PredAndPrey.Tests.pdb
+C:\dev\Projects\predandprey\predandprey\Tests\bin\Debug\nunit.framework.dll
+C:\dev\Projects\predandprey\predandprey\Tests\bin\Debug\PredAndPrey.Core.dll
+C:\dev\Projects\predandprey\predandprey\Tests\bin\Debug\Rhino.Mocks.dll
+C:\dev\Projects\predandprey\predandprey\Tests\bin\Debug\PredAndPrey.Core.pdb
+C:\dev\Projects\predandprey\predandprey\Tests\bin\Debug\nunit.framework.xml
+C:\dev\Projects\predandprey\predandprey\Tests\bin\Debug\Rhino.Mocks.xml
+C:\dev\Projects\predandprey\predandprey\Tests\obj\Debug\PredAndPrey.Tests.dll
+C:\dev\Projects\predandprey\predandprey\Tests\obj\Debug\PredAndPrey.Tests.pdb
