@@ -7,16 +7,29 @@
 
     public class Environment : IEnvironment
     {
+        private const int MaxElements = 1000;
+
+        private const int HealthPerBite = 10;
+
+        private const int MaxNumOfPlants = 100;
+
+        private const double ChanceOfSeedingAPlant = 0.3;
+
+        private const int HealthAfterReproduction = 10;
+
         private static IEnvironment instance;
 
         private readonly List<Organism> organisms = new List<Organism>();
 
         private readonly object syncLock = new object();
 
+        private readonly Random rnd;
+
         private Environment()
         {
             this.Width = 800;
             this.Height = 600;
+            this.rnd = new Random();
         }
 
         public static IEnvironment Instance
@@ -46,86 +59,122 @@
  
         public void Seed(IEnumerable<Organism> organismsToAdd)
         {
-            var rnd = new Random();
-
             foreach (var organism in organismsToAdd)
             {
-                var position = new Position
-                    {
-                        X = rnd.NextDouble() * this.Width,
-                        Y = rnd.NextDouble() * this.Height
-                    };
-
-                organism.Position = position;
+                organism.Position.X = this.rnd.NextDouble() * this.Width;
+                organism.Position.Y = this.rnd.NextDouble() * this.Height;
 
                 var organism1 = organism;
+
                 this.InvokeLocked(() => this.organisms.Add(organism1));
             }
         }
 
-        public IEnumerable<Organism> Look(Animal me)
+        public IEnumerable<Organism> Look(Animal animal)
         {
-            return this.InvokeLocked(() => this.organisms.Where(o => me.Position.Distance(o.Position) <= me.RangeOfAwareness).ToArray());
+            return this.Organisms;
         }
 
-        public void Move(Animal animal)
+        public void Move(Animal animal, double distance)
         {
-            var radian = DegreeToRadian(animal.Direction);
+            var radian = Position.DegreeToRadian(animal.Direction);
 
-            var newX = animal.Position.X += animal.Speed * Math.Cos(radian);
-            var newY = animal.Position.Y += animal.Speed * Math.Sin(radian);
+            var newX = animal.Position.X += distance * Math.Cos(radian);
+            var newY = animal.Position.Y += distance * Math.Sin(radian);
 
-            animal.Position.X = newX < 0 ? 0 : newX > this.Width ? this.Width : newX;
-            animal.Position.Y = newY < 0 ? 0 : newY > this.Height ? this.Height : newY;
+            newX = newX < 0 ? 0 : newX > this.Width ? this.Width : newX;
+            newY = newY < 0 ? 0 : newY > this.Height ? this.Height : newY;
 
-            animal.Health -= (int)Math.Ceiling(animal.Speed);
+            this.InvokeLocked(
+                () =>
+                    {
+                        animal.Position.X = newX;
+                        animal.Position.Y = newY;
+                    });
         }
 
-        public void Reproduce(Organism parent)
+        public void Deficate(Organism parent, Organism spore)
         {
-            var child = parent.Reproduce();
-            child.Position = new Position { X = parent.Position.X, Y = parent.Position.Y };
+            if (this.Organisms.Count() > MaxElements)
+            {
+                return;
+            }
 
-            parent.Size -= child.Size;
+            spore.Position.X = parent.Position.X;
+            spore.Position.Y = parent.Position.Y;
 
-            this.InvokeLocked(() => this.organisms.Add(child));
+            this.InvokeLocked(() =>
+            {
+                this.organisms.Add(spore);
+                parent.Health -= 40;
+            });
+        }
+
+        public void Reproduce<T>(T parentA, T parentB)
+            where T : Animal
+        {
+            if (this.Organisms.Count() > MaxElements)
+            {
+                return;
+            }
+
+            var child = parentA.Reproduce(parentB);
+            child.Position.X = parentA.Position.X;
+            child.Position.Y = parentA.Position.Y;
+            
+            this.InvokeLocked(() =>
+                {
+                    this.organisms.Add(child);
+                    parentA.Health = HealthAfterReproduction;
+                    parentB.Health = HealthAfterReproduction;
+                });
         }
 
         public void Eat(Animal pred, Organism prey)
         {
-            var consumed = Math.Min(prey.Health, pred.Size);
-
-            prey.Health -= consumed;
-            pred.Health += consumed;
+            this.InvokeLocked(
+                () =>
+                    {
+                        var consumed = Math.Min(prey.Health, HealthPerBite);
+                        prey.Health -= consumed;                        
+                        pred.Health += Math.Min(pred.MaxHealth - pred.Health, consumed);
+                    });
         }
 
         public void PassTime()
         {
             var tasks = new List<Task>();
 
+            var numOfPlants = this.Organisms.OfType<Plant>().Count();
+
+            if (numOfPlants < MaxNumOfPlants && this.rnd.NextDouble() < ChanceOfSeedingAPlant)
+            {
+                this.Seed(new[] { new Plant() });
+            }
+
             foreach (var organism in this.Organisms.ToArray())
             {
-                organism.Age++;
-                organism.Health--;
+                organism.Age++;                
 
-                if (organism.Health > 0)
+                if (organism.Health <= 0)
+                {
+                    this.organisms.Remove(organism);
+                }
+                else
                 {
                     var organism1 = organism;
-                    tasks.Add(Task.Factory.StartNew(() => organism1.Behave(this)));
+                    Task.Factory.StartNew(() => organism1.Behave(this)).ContinueWith(
+                        t =>
+                            {
+                                if (t.Exception != null)
+                                {
+                                    throw t.Exception;
+                                }
+                            });
                 }
             }
 
             Task.WaitAll(tasks.ToArray());
-
-            foreach (var organism in this.organisms.Where(o => o.Health < 1).ToArray())
-            {
-                this.organisms.Remove(organism);
-            }
-        }
-
-        private static double DegreeToRadian(double angle)
-        {
-            return Math.PI * angle / 180.0;
         }
 
         private T InvokeLocked<T>(Func<T> method)

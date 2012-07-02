@@ -40,14 +40,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\Carnivore.cs" />
     <Compile Include="Models\IEnvironment.cs" />
     <Compile Include="Models\Organism.cs" />
     <Compile Include="Models\Environment.cs" />
     <Compile Include="Models\Animal.cs" />
     <Compile Include="Models\Plant.cs" />
     <Compile Include="Models\Position.cs" />
-    <Compile Include="Models\Preditor.cs" />
-    <Compile Include="Models\Prey.cs" />
+    <Compile Include="Models\Herbivore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

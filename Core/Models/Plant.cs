@@ -2,27 +2,25 @@ namespace PredAndPrey.Core.Models
 {
     public class Plant : Organism
     {
-        public const int ReproductiveSize = 10;
-
         public Plant()
         {
-            this.Health = 100;
-            this.Size = 1;
+            this.Health = 40;
+            this.MaxHealth = 600;
         }
 
-        public override Organism Reproduce()
+        public virtual Plant Reproduce()
         {
             return new Plant();
         }
 
         public override void Behave(IEnvironment environment)
         {
-            this.Size++;
-
-            if (this.Size > ReproductiveSize)
+            if (this.Health > this.MaxHealth)
             {
-                environment.Reproduce(this);
+                return;
             }
+
+            this.Health += 4;
         }
     }
 }

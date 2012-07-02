@@ -3,3 +3,8 @@ C:\dev\Projects\predandprey\predandprey\Core\bin\Debug\PredAndPrey.Core.dll
 C:\dev\Projects\predandprey\predandprey\Core\bin\Debug\PredAndPrey.Core.pdb
 C:\dev\Projects\predandprey\predandprey\Core\obj\Debug\PredAndPrey.Core.dll
 C:\dev\Projects\predandprey\predandprey\Core\obj\Debug\PredAndPrey.Core.pdb
+C:\dev\Projects\PredAndPrey\Core\bin\Debug\PredAndPrey.Core.dll
+C:\dev\Projects\PredAndPrey\Core\bin\Debug\PredAndPrey.Core.pdb
+C:\dev\Projects\PredAndPrey\Core\obj\Debug\ResolveAssemblyReference.cache
+C:\dev\Projects\PredAndPrey\Core\obj\Debug\PredAndPrey.Core.dll
+C:\dev\Projects\PredAndPrey\Core\obj\Debug\PredAndPrey.Core.pdb

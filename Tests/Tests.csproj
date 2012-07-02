@@ -52,6 +52,7 @@
     <Compile Include="PlantBehaviourTests.cs" />
     <Compile Include="PreditorBehaviourTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WorldTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

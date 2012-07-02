@@ -18,41 +18,41 @@
         }
 
         [Test]
-        public void When_asked_to_reproduce_should_create_child()
+        public void When_asked_to_asexual_reproduce_should_create_child()
         {
             // Arrange
-            var organism = new TestOrganism();
+            var organism = new Plant();
 
             // Act
             Environment.Instance.Reproduce(organism);
 
             // Assert
-            Assert.IsTrue(Environment.Instance.Organisms.OfType<TestOrganism>().Any());
-            Assert.IsTrue(organism.HasReproduced);
+            var child = Environment.Instance.Organisms.OfType<Plant>().FirstOrDefault();
+            Assert.IsNotNull(child);
         }
 
         [Test]
-        public void When_asked_to_reproduce_should_reduce_parent_size()
+        public void When_asked_to_asexual_reproduce_should_reduce_parent_health()
         {
             // Arrange
-            const int InitialSize = 10;
+            const int InitialHealth = 10;
 
-            var organism = new TestOrganism { Size = InitialSize };
+            var organism = new Plant { Health = InitialHealth };
 
             // Act
             Environment.Instance.Reproduce(organism);
 
             // Assert
-            var child = Environment.Instance.Organisms.OfType<TestOrganism>().First();
+            var child = Environment.Instance.Organisms.OfType<Plant>().First();
 
-            Assert.AreEqual(InitialSize - child.Size, organism.Size);
+            Assert.AreEqual(InitialHealth - child.Health, organism.Health);
         }
 
         [Test]
-        public void When_reproducing_should_create_child_adjacent_to_parent()
+        public void When_asexual_reproducing_should_create_child_adjacent_to_parent()
         {
             // Arrange
-            var parent = new TestOrganism();
+            var parent = new Plant();
             Environment.Instance.Seed(new[] { parent });
 
             // Act
@@ -62,7 +62,7 @@
             var child = Environment.Instance.Organisms.First(o => o != parent);
             var distance = parent.Position.Distance(child.Position);
 
-            Assert.LessOrEqual(distance, parent.Size);
+            Assert.LessOrEqual(distance, parent.Health);
         }
 
         [Test]
@@ -71,9 +71,9 @@
             // Arrange
             var toAdd = new[]
                 {
-                    new TestOrganism(),
-                    new TestOrganism(),
-                    new TestOrganism()
+                    new Herbivore(),
+                    new Herbivore(),
+                    new Herbivore()
                 };
 
             // Act
@@ -92,12 +92,12 @@
 
             for (int i = 0; i < 1000; i++)
             {
-                organisms.Add(new TestOrganism());
+                organisms.Add(new Herbivore());
             }
 
             Environment.Instance.Seed(organisms);
 
-            var observer = new Preditor { RangeOfAwareness = 20, Position = new Position { X = 400, Y = 300 } };
+            var observer = new Carnivore { RangeOfAwareness = 20, Position = { X = 400, Y = 300 } };
 
             // Act
             var visibleOrganisms = Environment.Instance.Look(observer);
@@ -119,18 +119,18 @@
             // Arrange
             var initialPosition = new Position { X = 400, Y = 300 };
 
-            var mover = new TestOrganism
+            var mover = new Herbivore
                 {
-                    Position = initialPosition,
+                    Position = { X = initialPosition.X, Y = initialPosition.Y },
                     Speed = 5,
                     Direction = 180
                 };
 
             // Act
-            Environment.Instance.Move(mover);
+            Environment.Instance.Move(mover, mover.Speed);
             var firstPosition = new Position { X = mover.Position.X, Y = mover.Position.Y };
             mover.Direction = 0;
-            Environment.Instance.Move(mover);
+            Environment.Instance.Move(mover, mover.Speed);
             var secondPosition = new Position { X = mover.Position.X, Y = mover.Position.Y };
 
             // Assert
@@ -139,35 +139,37 @@
         }
 
         [Test]
-        public void When_eating_should_deduct_and_increase_health_acording_to_size()
+        public void When_eating_should_increase_health_of_preditor()
         {
             // Arrange
-            var preditor = new TestOrganism { Size = 10, Health = 10 };
+            const int InitialHealth = 20;
 
-            var prey = new TestOrganism { Health = 20 };
+            var preditor = new Herbivore { Health = InitialHealth };
+
+            var prey = new Herbivore();
 
             // Act
             Environment.Instance.Eat(preditor, prey);
 
             // Assert
-            Assert.AreEqual(20, preditor.Health);
-            Assert.AreEqual(10, prey.Health);
+            Assert.Greater(preditor.Health, InitialHealth);
         }
 
-        private class TestOrganism : Animal
+        [Test]
+        public void When_eating_should_deduct_health_from_prey()
         {
-            public bool HasReproduced { get; private set; }
+            // Arrange
+            const int InitialHealth = 20;
 
-            public override Organism Reproduce()
-            {
-                this.HasReproduced = true;
+            var preditor = new Carnivore();
 
-                return new TestOrganism { Size = this.Size / 2 };
-            }
+            var prey = new Herbivore { Health = InitialHealth };
 
-            public override void Behave(IEnvironment environment)
-            {
-            }
+            // Act
+            Environment.Instance.Eat(preditor, prey);
+
+            // Assert
+            Assert.Less(prey.Health, InitialHealth);
         }
     }
 }

@@ -12,32 +12,35 @@
     public class PreditorBehaviourTests : OrganismBehaviourTestBase
     {
         [Test]
-        public void When_size_exceeds_reproduction_size_should_reproduce()
+        public void When_is_healthly_should_seek_mate()
         {
             // Arrange
-            var preditor = new Preditor { Size = Preditor.ReproductiveSize + 1 };
+            var preditor = new Carnivore { Health = 1000, RangeOfAwareness = 10 };
+            var mate = new Carnivore { Health = 1000, Position = { X = 4, Y = 4 } };
+
+            this.Environment.Expect(e => e.Look(null)).IgnoreArguments().Return(new[] { mate });
 
             // Act
             preditor.Behave(this.Environment);
 
             // Assert
-            this.Environment.AssertWasCalled(e => e.Reproduce(preditor), options => options.Repeat.AtLeastOnce());
+            Assert.Greater(preditor.Direction, 0);
         }
 
         [Test]
-        public void When_prey_visible_should_move_towards_nearest_prey()
+        public void When_hungry_and_prey_visible_should_move_towards_nearest_prey()
         {
             // Arrange
-            var prey = new List<Prey>
+            var prey = new List<Herbivore>
                 {
-                    new Prey { Position = new Position { X = 0, Y = 0 } },
-                    new Prey { Position = new Position { X = 30, Y = 30 } }
+                    new Herbivore { Position = { X = 0, Y = 0 } },
+                    new Herbivore { Position = { X = 30, Y = 30 } }
                 };
 
-            var preditor = new Preditor
+            var preditor = new Carnivore
                 {
                     Speed = 5,
-                    Position = new Position { X = 20, Y = 20 }
+                    Position = { X = 20, Y = 20 }
                 };
 
             this.Environment.Expect(e => e.Look(preditor)).Return(prey).Repeat.Once();
@@ -47,7 +50,7 @@
 
             // Assert
             this.Environment.VerifyAllExpectations();
-            Assert.AreEqual(45, preditor.Direction);
+            Assert.AreNotEqual(0, preditor.Direction);
         }
     }
 }

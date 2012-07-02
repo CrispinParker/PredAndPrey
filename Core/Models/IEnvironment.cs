@@ -12,14 +12,16 @@ namespace PredAndPrey.Core.Models
 
         void Seed(IEnumerable<Organism> organismsToAdd);
 
-        IEnumerable<Organism> Look(Animal me);
+        IEnumerable<Organism> Look(Animal animal);
 
-        void Move(Animal animal);
+        void Move(Animal animal, double distance);
 
-        void Reproduce(Organism parent);
+        void Reproduce<T>(T parentA, T parentB) where T : Animal;
 
         void Eat(Animal pred, Organism prey);
 
         void PassTime();
+
+        void Deficate(Organism parent, Organism spore);
     }
 }

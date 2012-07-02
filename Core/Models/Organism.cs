@@ -2,16 +2,19 @@
 {
     public abstract class Organism
     {
-        public int Health { get; set; }
+        protected Organism()
+        {
+            this.Position = new Position();
+        }
 
-        public int Size { get; set; }
+        public double MaxHealth { get; set; }
+
+        public double Health { get; set; }
 
         public int Age { get; set; }
 
-        public Position Position { get; set; }
+        public Position Position { get; private set; }
 
         public abstract void Behave(IEnvironment environment);
-
-        public abstract Organism Reproduce();
     }
 }
