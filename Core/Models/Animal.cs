@@ -8,17 +8,24 @@ namespace PredAndPrey.Core.Models
     {
         private const double HealthBehaviourCost = 0.04;
 
-        private const double ChanceOfMutation = 0.05;
+        private const double ChanceOfMutation = 0.075;
 
         private const int ContactDistance = 2;
 
-        private const double MutationAmount = 0.5d;
+        private const double MutationAmount = 0.3;
 
-        private readonly Random rnd = new Random((int)DateTime.Now.Ticks);
+        private const double ReproductiveHealthPercentage = 0.5;
+
+        private const double HungerPercentage = 0.75;
+
+        private static int id;
+
+        private readonly Random rnd;
 
         protected Animal()
         {
             this.Features = new Dictionary<string, double>();
+            this.rnd = new Random(++id);
         }
 
         public int Generation { get; set; }
@@ -27,7 +34,7 @@ namespace PredAndPrey.Core.Models
 
         public double Direction { get; set; }
 
-        public double RangeOfAwareness { get; set; }
+        public double Sight { get; set; }
 
         public Dictionary<string, double> Features { get; private set; }
 
@@ -35,7 +42,7 @@ namespace PredAndPrey.Core.Models
         {
             get
             {
-                return this.Health >= (this.MaxHealth * 0.5);
+                return this.Health >= (this.Size * ReproductiveHealthPercentage);
             }
         }
 
@@ -43,21 +50,21 @@ namespace PredAndPrey.Core.Models
         {
             get
             {
-                return this.Health <= (this.MaxHealth * 0.75);
+                return this.Health <= (this.Size * HungerPercentage);
             }
         }
 
         public Animal Reproduce(Animal mate)
         {
-            var maxHealth = this.GetInheritedValue(this.MaxHealth, mate.MaxHealth);
-            var rangeOfAwareness = this.GetInheritedValue(this.RangeOfAwareness, mate.RangeOfAwareness);
+            var maxHealth = this.GetInheritedValue(this.Size, mate.Size);
+            var rangeOfAwareness = this.GetInheritedValue(this.Sight, mate.Sight);
             var speed = this.GetInheritedValue(this.Speed, mate.Speed);
 
             var child = this.CreateChild();
 
-            child.MaxHealth = maxHealth;
-            child.Health = maxHealth * 0.75;
-            child.RangeOfAwareness = rangeOfAwareness;
+            child.Size = maxHealth;
+            child.Health = maxHealth * ReproductiveHealthPercentage;
+            child.Sight = rangeOfAwareness;
             child.Speed = speed;
             child.Generation = Math.Max(this.Generation, mate.Generation) + 1;
 
@@ -87,7 +94,7 @@ namespace PredAndPrey.Core.Models
             return output;
         }
 
-        public override void Behave(IEnvironment environment)
+        public override void Behave(Environment environment)
         {
             this.Health -= this.Speed * HealthBehaviourCost;
 
@@ -96,44 +103,61 @@ namespace PredAndPrey.Core.Models
                 return;
             }
 
-            var visibleOrganisms = environment.Organisms.ToArray();
+            var organisms = environment.Organisms.ToArray();
 
-            var closestMate = this.GetClosest(this.SelectMates(visibleOrganisms).Where(p => p != this && p.IsReproductive));
-            var closestPrey = this.GetClosest(this.SelectPrey(visibleOrganisms).ToArray());
-            var closestThreat = this.GetClosest(this.SelectPreditors(visibleOrganisms));
+            Tuple<double, Organism> closestPrey;
+            Tuple<double, Animal> closestThreat;
 
-            if (closestThreat != null && closestThreat.Item1 < this.RangeOfAwareness)
+            if (this.TryFindClosest(this.SelectPreditors(organisms), out closestThreat))
             {
                 this.Run(environment, closestThreat);
             }
-            else if (this.IsHungry && closestPrey != null && closestPrey.Item1 < this.RangeOfAwareness)
+            else if (this.IsHungry && this.TryFindClosest(this.SelectPrey(organisms), out closestPrey))
             {
                 this.SeekFood(environment, closestPrey);
             }
-            else if (this.IsReproductive && closestMate != null && closestMate.Item1 < this.RangeOfAwareness)
-            {
-                this.SeekMate(environment, closestMate);
-            }
             else
             {
-                this.Wander(environment);
+                Tuple<double, Animal> closestMate;
+                var canSeeMate = this.TryFindClosest(this.SelectMates(organisms), out closestMate);
+
+                if (this.IsReproductive && canSeeMate)
+                {
+                    this.SeekMate(environment, closestMate);
+                }
+                else if (canSeeMate)
+                {
+                    this.Shoal(environment, closestMate);
+                }
+                else
+                {
+                    this.Wander(environment);
+                }
             }
         }
 
-        protected void Run(IEnvironment environment, Tuple<double, Animal> preditor)
+        protected abstract Animal CreateChild();
+
+        protected abstract IEnumerable<Animal> SelectMates(IEnumerable<Organism> visibleOrganisms);
+
+        protected abstract IEnumerable<Organism> SelectPrey(IEnumerable<Organism> visibleOrganisms);
+
+        protected abstract IEnumerable<Animal> SelectPreditors(IEnumerable<Organism> visibleOrganisms);
+
+        private void Run(Environment environment, Tuple<double, Animal> preditor)
         {
             this.Direction = preditor.Item2.Position.Angle(this.Position);
             this.RandomiseDirection();
             environment.Move(this, Math.Min(preditor.Item1, this.Speed));
         }
 
-        protected void Wander(IEnvironment environment)
+        private void Wander(Environment environment)
         {
             this.RandomiseDirection();
-            environment.Move(this, rnd.NextDouble() * this.Speed);
+            environment.Move(this, this.rnd.NextDouble() * this.Speed);
         }
 
-        protected void SeekFood(IEnvironment environment, Tuple<double, Organism> closestPrey)
+        private void SeekFood(Environment environment, Tuple<double, Organism> closestPrey)
         {
             if (closestPrey.Item1 < ContactDistance)
             {
@@ -147,7 +171,7 @@ namespace PredAndPrey.Core.Models
             }
         }
 
-        protected void SeekMate(IEnvironment environment, Tuple<double, Animal> closestMate)
+        private void SeekMate(Environment environment, Tuple<double, Animal> closestMate)
         {
             if (closestMate.Item1 < ContactDistance)
             {
@@ -162,26 +186,35 @@ namespace PredAndPrey.Core.Models
             }
         }
 
-        protected abstract Animal CreateChild();
-
-        protected abstract IEnumerable<Animal> SelectMates(IEnumerable<Organism> visibleOrganisms);
-
-        protected abstract IEnumerable<Organism> SelectPrey(IEnumerable<Organism> visibleOrganisms);
-
-        protected abstract IEnumerable<Animal> SelectPreditors(IEnumerable<Organism> visibleOrganisms);
-
-        private Tuple<double, T> GetClosest<T>(IEnumerable<T> organisms)
+        private void Shoal(Environment environment, Tuple<double, Animal> closestMate)
+        {
+            if (closestMate.Item1 > this.Sight / 2)
+            {
+                this.Direction = this.Position.Angle(closestMate.Item2.Position);
+                this.RandomiseDirection();
+                environment.Move(this, this.Speed);
+            }
+            else
+            {
+                this.Wander(environment);
+            }
+        }
+        
+        private bool TryFindClosest<T>(IEnumerable<T> organisms, out Tuple<double, T> closest)
             where T : Organism
         {
-            return organisms
+            closest = organisms
                 .Select(m => Tuple.Create(this.Position.Distance(m.Position), m))
+                .Where(o => o.Item2 != this && o.Item1 < this.Sight)
                 .OrderBy(tup => tup.Item1)
                 .FirstOrDefault();
+
+            return closest != null;
         }
 
         private void RandomiseDirection()
         {
-            this.Direction += this.rnd.Next(40) - 20;
+            this.Direction += this.rnd.Next(30) - 15;
         }
 
         private double Deviate(double source)

@@ -5,7 +5,7 @@ namespace PredAndPrey.Core.Models
         public Plant()
         {
             this.Health = 40;
-            this.MaxHealth = 600;
+            this.Size = 700;
         }
 
         public virtual Plant Reproduce()
@@ -13,14 +13,14 @@ namespace PredAndPrey.Core.Models
             return new Plant();
         }
 
-        public override void Behave(IEnvironment environment)
+        public override void Behave(Environment environment)
         {
-            if (this.Health > this.MaxHealth)
+            if (this.Health <= 0 || this.Health > this.Size)
             {
                 return;
             }
 
-            this.Health += 4;
+            this.Health += 5;
         }
     }
 }

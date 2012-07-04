@@ -13,10 +13,10 @@ namespace PredAndPrey.Core.Models
         {
             var output = new Carnivore
                 {
-                    MaxHealth = 200,
+                    Size = 200,
                     Health = 200 * 0.75,
                     Speed = 3.5d,
-                    RangeOfAwareness = 60,
+                    Sight = 60,
                     Generation = 1
                 };
 

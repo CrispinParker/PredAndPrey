@@ -7,7 +7,7 @@
             this.Position = new Position();
         }
 
-        public double MaxHealth { get; set; }
+        public double Size { get; set; }
 
         public double Health { get; set; }
 
@@ -15,6 +15,6 @@
 
         public Position Position { get; private set; }
 
-        public abstract void Behave(IEnvironment environment);
+        public abstract void Behave(Environment environment);
     }
 }

@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class Environment : IEnvironment
+    public class Environment
     {
         private const int MaxElements = 1000;
 
@@ -17,7 +17,9 @@
 
         private const int HealthAfterReproduction = 10;
 
-        private static IEnvironment instance;
+        private const double MaxSpeed = 10;
+
+        private static Environment instance;
 
         private readonly List<Organism> organisms = new List<Organism>();
 
@@ -30,9 +32,10 @@
             this.Width = 800;
             this.Height = 600;
             this.rnd = new Random();
+            this.Statistics = new Statistics();
         }
 
-        public static IEnvironment Instance
+        public static Environment Instance
         {
             get
             {
@@ -44,6 +47,8 @@
                 instance = value;
             }
         }
+
+        public Statistics Statistics { get; set; }
 
         public double Width { get; private set; }
 
@@ -68,11 +73,6 @@
 
                 this.InvokeLocked(() => this.organisms.Add(organism1));
             }
-        }
-
-        public IEnumerable<Organism> Look(Animal animal)
-        {
-            return this.Organisms;
         }
 
         public void Move(Animal animal, double distance)
@@ -119,6 +119,9 @@
             }
 
             var child = parentA.Reproduce(parentB);
+
+            child.Speed = child.Speed > MaxSpeed ? MaxSpeed : child.Speed;
+
             child.Position.X = parentA.Position.X;
             child.Position.Y = parentA.Position.Y;
             
@@ -137,7 +140,7 @@
                     {
                         var consumed = Math.Min(prey.Health, HealthPerBite);
                         prey.Health -= consumed;                        
-                        pred.Health += Math.Min(pred.MaxHealth - pred.Health, consumed);
+                        pred.Health += Math.Min(pred.Size - pred.Health, consumed);
                     });
         }
 
@@ -175,6 +178,8 @@
             }
 
             Task.WaitAll(tasks.ToArray());
+
+            this.Statistics.Calculate(this.Organisms);
         }
 
         private T InvokeLocked<T>(Func<T> method)
