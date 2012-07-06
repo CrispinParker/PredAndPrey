@@ -5,6 +5,12 @@ namespace PredAndPrey.Core.Models
 
     public class Herbivore : Animal
     {
+        public const double InitialSize = 200;
+
+        public const double InitialSpeed = 2.5;
+
+        public const double InitialSight = 40;
+        
         private Herbivore()
         {
         }
@@ -13,10 +19,10 @@ namespace PredAndPrey.Core.Models
         {
             var output = new Herbivore
                 {
-                    Size = 200,
-                    Health = 200 * 0.75,
-                    Speed = 2.5d,
-                    Sight = 40,
+                    Size = InitialSize,
+                    Health = InitialSize * HungerPercentage,
+                    Speed = InitialSpeed,
+                    Sight = InitialSight,
                     Generation = 1
                 };
 
@@ -40,7 +46,7 @@ namespace PredAndPrey.Core.Models
             return visibleOrganisms.OfType<Plant>();
         }
 
-        protected override IEnumerable<Animal> SelectPreditors(IEnumerable<Organism> visibleOrganisms)
+        protected override IEnumerable<Animal> SelectPredators(IEnumerable<Organism> visibleOrganisms)
         {
             return visibleOrganisms.OfType<Carnivore>();
         }

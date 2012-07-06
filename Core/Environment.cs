@@ -1,9 +1,11 @@
-﻿namespace PredAndPrey.Core.Models
+﻿namespace PredAndPrey.Core
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+
+    using PredAndPrey.Core.Models;
 
     public class Environment
     {
@@ -19,6 +21,8 @@
 
         private const double MaxSpeed = 10;
 
+        private const double MinimumeSize = 40;
+
         private static Environment instance;
 
         private readonly List<Organism> organisms = new List<Organism>();
@@ -29,8 +33,8 @@
 
         private Environment()
         {
-            this.Width = 800;
-            this.Height = 600;
+            this.Width = 960;
+            this.Height = 720;
             this.rnd = new Random();
             this.Statistics = new Statistics();
         }
@@ -50,9 +54,9 @@
 
         public Statistics Statistics { get; set; }
 
-        public double Width { get; private set; }
+        public double Width { get; set; }
 
-        public double Height { get; private set; }
+        public double Height { get; set; }
 
         public IEnumerable<Organism> Organisms
         {
@@ -61,13 +65,15 @@
                 return this.InvokeLocked(() => this.organisms.ToArray());
             }
         }
- 
+
         public void Seed(IEnumerable<Organism> organismsToAdd)
         {
             foreach (var organism in organismsToAdd)
             {
-                organism.Position.X = this.rnd.NextDouble() * this.Width;
-                organism.Position.Y = this.rnd.NextDouble() * this.Height;
+                var x = this.rnd.NextDouble() * this.Width;
+                var y = this.rnd.NextDouble() * this.Height;
+
+                organism.Position = new Position(x, y);
 
                 var organism1 = organism;
 
@@ -78,56 +84,47 @@
         public void Move(Animal animal, double distance)
         {
             var radian = Position.DegreeToRadian(animal.Direction);
+            
+            var x = animal.Position.X + (distance * Math.Cos(radian));
+            var y = animal.Position.Y + (distance * Math.Sin(radian));
 
-            var newX = animal.Position.X += distance * Math.Cos(radian);
-            var newY = animal.Position.Y += distance * Math.Sin(radian);
-
-            newX = newX < 0 ? 0 : newX > this.Width ? this.Width : newX;
-            newY = newY < 0 ? 0 : newY > this.Height ? this.Height : newY;
+            x = x < 0 ? 0 : x > this.Width ? this.Width : x;
+            y = y < 0 ? 0 : y > this.Height ? this.Height : y;
 
             this.InvokeLocked(
                 () =>
                     {
-                        animal.Position.X = newX;
-                        animal.Position.Y = newY;
+                        animal.Position = new Position(x, y);
                     });
-        }
-
-        public void Deficate(Organism parent, Organism spore)
-        {
-            if (this.Organisms.Count() > MaxElements)
-            {
-                return;
-            }
-
-            spore.Position.X = parent.Position.X;
-            spore.Position.Y = parent.Position.Y;
-
-            this.InvokeLocked(() =>
-            {
-                this.organisms.Add(spore);
-                parent.Health -= 40;
-            });
         }
 
         public void Reproduce<T>(T parentA, T parentB)
             where T : Animal
         {
-            if (this.Organisms.Count() > MaxElements)
+            var enumeratedList = this.Organisms.ToArray();
+
+            if (enumeratedList.Count() > MaxElements)
             {
                 return;
             }
 
+            var speciesCount = enumeratedList.OfType<T>().Count();
+
             var child = parentA.Reproduce(parentB);
 
             child.Speed = child.Speed > MaxSpeed ? MaxSpeed : child.Speed;
+            child.Size = child.Size < MinimumeSize ? MinimumeSize : child.Size;
 
-            child.Position.X = parentA.Position.X;
-            child.Position.Y = parentA.Position.Y;
+            child.Position = new Position(parentA.Position.X, parentA.Position.Y);
             
             this.InvokeLocked(() =>
                 {
                     this.organisms.Add(child);
+                    if (speciesCount <= 10)
+                    {
+                        return;
+                    }
+
                     parentA.Health = HealthAfterReproduction;
                     parentB.Health = HealthAfterReproduction;
                 });

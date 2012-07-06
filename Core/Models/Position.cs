@@ -2,11 +2,18 @@ namespace PredAndPrey.Core.Models
 {
     using System;
 
-    public class Position
+    public struct Position
     {
-        public double X { get; set; }
+        public Position(double x, double y)
+            : this()
+        {
+            this.X = x;
+            this.Y = y;
+        }
 
-        public double Y { get; set; }
+        public double X { get; private set; }
+
+        public double Y { get; private set; }
 
         public static double DegreeToRadian(double angle)
         {
@@ -18,12 +25,10 @@ namespace PredAndPrey.Core.Models
             var lengthX = this.X - target.X;
             var lengthY = this.Y - target.Y;
 
-            var sqrX = lengthX * lengthX;
-            var sqrY = lengthY * lengthY;
+            var sqrX = Math.Pow(lengthX, 2);
+            var sqrY = Math.Pow(lengthY, 2);
 
-            var sqrDistance = sqrX + sqrY;
-
-            return Math.Sqrt(sqrDistance);
+            return Math.Sqrt(sqrX + sqrY);
         }
 
         public double Angle(Position target)

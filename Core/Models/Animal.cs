@@ -4,19 +4,21 @@ namespace PredAndPrey.Core.Models
     using System.Collections.Generic;
     using System.Linq;
 
+    using Environment = PredAndPrey.Core.Environment;
+
     public abstract class Animal : Organism
     {
-        private const double HealthBehaviourCost = 0.04;
+        public const double HungerPercentage = 0.75;
 
-        private const double ChanceOfMutation = 0.075;
+        private const double HealthBehaviourCost = 0.1;
+
+        private const double ChanceOfMutation = 0.08;
 
         private const int ContactDistance = 2;
 
-        private const double MutationAmount = 0.3;
+        private const double MutationAmount = 0.4;
 
         private const double ReproductiveHealthPercentage = 0.5;
-
-        private const double HungerPercentage = 0.75;
 
         private static int id;
 
@@ -96,7 +98,7 @@ namespace PredAndPrey.Core.Models
 
         public override void Behave(Environment environment)
         {
-            this.Health -= this.Speed * HealthBehaviourCost;
+            this.Health -= HealthBehaviourCost;
 
             if (this.Health <= 0)
             {
@@ -107,8 +109,9 @@ namespace PredAndPrey.Core.Models
 
             Tuple<double, Organism> closestPrey;
             Tuple<double, Animal> closestThreat;
+            Tuple<double, Animal> closestMate;
 
-            if (this.TryFindClosest(this.SelectPreditors(organisms), out closestThreat))
+            if (this.TryFindClosest(this.SelectPredators(organisms), out closestThreat))
             {
                 this.Run(environment, closestThreat);
             }
@@ -116,24 +119,14 @@ namespace PredAndPrey.Core.Models
             {
                 this.SeekFood(environment, closestPrey);
             }
+            else if (this.IsReproductive && this.TryFindClosest(this.SelectMates(organisms), out closestMate))
+            {
+                this.SeekMate(environment, closestMate);
+            }
             else
             {
-                Tuple<double, Animal> closestMate;
-                var canSeeMate = this.TryFindClosest(this.SelectMates(organisms), out closestMate);
-
-                if (this.IsReproductive && canSeeMate)
-                {
-                    this.SeekMate(environment, closestMate);
-                }
-                else if (canSeeMate)
-                {
-                    this.Shoal(environment, closestMate);
-                }
-                else
-                {
-                    this.Wander(environment);
-                }
-            }
+                this.Wander(environment);
+            }            
         }
 
         protected abstract Animal CreateChild();
@@ -142,7 +135,7 @@ namespace PredAndPrey.Core.Models
 
         protected abstract IEnumerable<Organism> SelectPrey(IEnumerable<Organism> visibleOrganisms);
 
-        protected abstract IEnumerable<Animal> SelectPreditors(IEnumerable<Organism> visibleOrganisms);
+        protected abstract IEnumerable<Animal> SelectPredators(IEnumerable<Organism> visibleOrganisms);
 
         private void Run(Environment environment, Tuple<double, Animal> preditor)
         {
@@ -176,7 +169,6 @@ namespace PredAndPrey.Core.Models
             if (closestMate.Item1 < ContactDistance)
             {
                 environment.Reproduce(this, closestMate.Item2);
-                this.Wander(environment);
             }
             else
             {
@@ -199,7 +191,7 @@ namespace PredAndPrey.Core.Models
                 this.Wander(environment);
             }
         }
-        
+
         private bool TryFindClosest<T>(IEnumerable<T> organisms, out Tuple<double, T> closest)
             where T : Organism
         {

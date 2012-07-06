@@ -5,7 +5,7 @@ namespace PredAndPrey.Core.Models
         public Plant()
         {
             this.Health = 40;
-            this.Size = 700;
+            this.Size = 500;
         }
 
         public virtual Plant Reproduce()
@@ -20,7 +20,7 @@ namespace PredAndPrey.Core.Models
                 return;
             }
 
-            this.Health += 5;
+            this.Health += 3.5;
         }
     }
 }

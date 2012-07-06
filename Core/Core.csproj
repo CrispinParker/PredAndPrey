@@ -42,7 +42,7 @@
   <ItemGroup>
     <Compile Include="Models\Carnivore.cs" />
     <Compile Include="Models\Organism.cs" />
-    <Compile Include="Models\Environment.cs" />
+    <Compile Include="Environment.cs" />
     <Compile Include="Models\Animal.cs" />
     <Compile Include="Models\Plant.cs" />
     <Compile Include="Models\Position.cs" />
