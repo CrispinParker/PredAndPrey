@@ -7,6 +7,7 @@
     using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
+    using System.Windows.Input;
     using System.Windows.Media;
     using System.Windows.Shapes;
     using System.Windows.Threading;
@@ -30,6 +31,8 @@
         private readonly Geometry preyGeometry2;
 
         private bool isPassingTime;
+
+        private int trackedAnimal;
 
         public MainWindow()
         {
@@ -123,43 +126,16 @@
                     canvasTop = organism.Position.Y;
                 }
 
-
                 var herbivore = organism as Herbivore;
                 if (herbivore != null)
                 {
-                    var speedTransform = Herbivore.InitialSpeed / herbivore.Speed;
-                    var sizeTransform = herbivore.Size / Herbivore.InitialSize;
-
-                    var pathData = rnd.NextDouble() > 0.5 ? this.preyGeometry1 : this.preyGeometry2;
-
-                    element = new Path
-                        {
-                            Data = pathData,
-                            Height = Math.Max(3, 17 * sizeTransform),
-                            Width = Math.Max(2, 12 * speedTransform), 
-                            Fill = ColourFromOrganism(herbivore),
-                            RenderTransform = new RotateTransform(herbivore.Direction - 270, 0.5, 0.2),
-                            Stretch = Stretch.Fill
-                        };
+                    element = this.CreatePreyElement(rnd, herbivore);
                 }
 
                 var carnivore = organism as Carnivore;
                 if (carnivore != null)
                 {
-                    var speedTransform = Carnivore.InitialSpeed / carnivore.Speed;
-                    var sizeTransform = carnivore.Size / Carnivore.InitialSize;
-
-                    var pathData = rnd.NextDouble() > 0.5 ? this.preditoreGeometry1 : this.preditoryGeometry2;
-
-                    element = new Path
-                    {
-                        Data = pathData,
-                        Height = Math.Max(3, 23 * sizeTransform),
-                        Width = Math.Max(2, 12 * speedTransform),
-                        Fill = ColourFromOrganism(carnivore),
-                        RenderTransform = new RotateTransform(carnivore.Direction - 270, 0.5, 0.2),
-                        Stretch = Stretch.Fill
-                    };
+                    element = this.CreatePredatorElement(rnd, carnivore);
                 }
 
                 if (element == null)
@@ -170,8 +146,68 @@
                 element.SetValue(Canvas.LeftProperty, canvasLeft);
                 element.SetValue(Canvas.TopProperty, canvasTop);
 
+                if (this.trackedAnimal != 0 && this.trackedAnimal == Convert.ToInt32(element.Tag))
+                {
+                    var scaleTransform = this.PART_Canvas.RenderTransform as ScaleTransform;
+
+                    if (scaleTransform == null)
+                    {
+                        this.PART_Canvas.RenderTransform = new ScaleTransform(5, 5, organism.Position.X, organism.Position.Y);
+                    }
+                    else
+                    {
+                        scaleTransform.CenterX = organism.Position.X;
+                        scaleTransform.CenterY = organism.Position.Y;
+                    }
+                }
+
                 PART_Canvas.Children.Add(element);
             }
+        }
+
+        private FrameworkElement CreatePreyElement(Random rnd, Herbivore herbivore)
+        {
+            var speedTransform = Herbivore.InitialSpeed / herbivore.Speed;
+            var sizeTransform = herbivore.Size / Herbivore.InitialSize;
+
+            var pathData = rnd.NextDouble() > 0.5 ? this.preyGeometry1 : this.preyGeometry2;
+
+            FrameworkElement element = new Path
+                {
+                    Data = pathData,
+                    Height = Math.Max(3, 17 * sizeTransform),
+                    Width = Math.Max(2, 12 * speedTransform),
+                    Fill = ColourFromOrganism(herbivore),
+                    Stretch = Stretch.Fill,
+                    Tag = herbivore.Id
+                };
+
+            element.RenderTransform = new RotateTransform(
+                herbivore.Direction - 270, element.Width / 2, element.Height - (element.Height * 0.8));
+            return element;
+        }
+
+        private FrameworkElement CreatePredatorElement(Random rnd, Carnivore carnivore)
+        {
+            var speedTransform = Carnivore.InitialSpeed / carnivore.Speed;
+            var sizeTransform = carnivore.Size / Carnivore.InitialSize;
+
+            var pathData = rnd.NextDouble() > 0.5 ? this.preditoreGeometry1 : this.preditoryGeometry2;
+
+            FrameworkElement element = new Path
+                {
+                    Data = pathData,
+                    Height = Math.Max(3, 23 * sizeTransform),
+                    Width = Math.Max(2, 12 * speedTransform),
+                    Fill = ColourFromOrganism(carnivore),
+                    Stretch = Stretch.Fill,
+                    Tag = carnivore.Id
+                };
+
+            element.RenderTransform = new RotateTransform(
+                carnivore.Direction - 270, element.Width / 2, element.Height - (element.Height * 0.8));
+
+            return element;
         }
 
         private void UpdateStatistics()
@@ -231,6 +267,25 @@
         private void Reset(object sender, RoutedEventArgs e)
         {
             Environment.Instance = null;
+        }
+
+        private void HandleCanvasMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var pt = e.GetPosition((UIElement)sender);
+
+            var hitTestResult = VisualTreeHelper.HitTest(this.PART_Canvas, pt);
+
+            var path = hitTestResult.VisualHit as Path;
+
+            if (path != null && (path.Tag is int))
+            {
+                this.trackedAnimal = Convert.ToInt32(path.Tag);
+            }
+            else
+            {
+                this.PART_Canvas.RenderTransform = null;
+                this.trackedAnimal = 0;
+            }
         }
     }
 }

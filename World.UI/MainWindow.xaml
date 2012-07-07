@@ -28,6 +28,8 @@
             Name="PART_Canvas"
             Width="{Binding Source={x:Static Core:Environment.Instance}, Path=Width}"
             Height="{Binding Source={x:Static Core:Environment.Instance}, Path=Height}" 
+            MouseDown="HandleCanvasMouseDown"
+            Background="Transparent"
             />
         </Viewbox>
         <Button
@@ -44,6 +46,7 @@
             Maximum="5"
             Margin="102,0,0,0" 
             HorizontalAlignment="Left"
+            VerticalAlignment="Top"
             ToolTip="Game Speed"
             />
 

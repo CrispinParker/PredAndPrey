@@ -20,14 +20,15 @@ namespace PredAndPrey.Core.Models
 
         private const double ReproductiveHealthPercentage = 0.5;
 
-        private static int id;
+        private static int idSeed;
 
         private readonly Random rnd;
 
         protected Animal()
         {
             this.Features = new Dictionary<string, double>();
-            this.rnd = new Random(++id);
+            this.Id = ++idSeed;
+            this.rnd = new Random(this.Id);
         }
 
         public int Generation { get; set; }
@@ -55,6 +56,8 @@ namespace PredAndPrey.Core.Models
                 return this.Health <= (this.Size * HungerPercentage);
             }
         }
+
+        public int Id { get; set; }
 
         public Animal Reproduce(Animal mate)
         {
@@ -126,7 +129,7 @@ namespace PredAndPrey.Core.Models
             else
             {
                 this.Wander(environment);
-            }            
+            }
         }
 
         protected abstract Animal CreateChild();
@@ -180,11 +183,13 @@ namespace PredAndPrey.Core.Models
 
         private void Shoal(Environment environment, Tuple<double, Animal> closestMate)
         {
-            if (closestMate.Item1 > this.Sight / 2)
+            var idealDistance = this.Sight / 2;
+
+            if (closestMate.Item1 > idealDistance)
             {
                 this.Direction = this.Position.Angle(closestMate.Item2.Position);
                 this.RandomiseDirection();
-                environment.Move(this, this.Speed);
+                environment.Move(this, Math.Min(idealDistance, this.Speed));
             }
             else
             {
