@@ -11,7 +11,7 @@
     {
         private const int MaxElements = 1000;
 
-        private const int HealthPerBite = 10;
+        private const int HealthPerBiteModifier = 5;
 
         private const int MaxNumOfPlants = 100;
 
@@ -21,9 +21,11 @@
 
         private const double MaxSpeed = 10;
 
-        private const double MinimumeSize = 40;
+        private const double MinimumSize = 40;
 
         private static Environment instance;
+
+        private static int idSeed;
 
         private readonly List<Organism> organisms = new List<Organism>();
 
@@ -33,8 +35,8 @@
 
         private Environment()
         {
-            this.Width = 960;
-            this.Height = 720;
+            this.Width = 1000;
+            this.Height = 750;
             this.rnd = new Random();
             this.Statistics = new Statistics();
         }
@@ -66,22 +68,67 @@
             }
         }
 
+        public int GetNextId()
+        {
+            return this.InvokeLocked(() => ++idSeed);
+        }
+
         public void Seed(IEnumerable<Organism> organismsToAdd)
         {
-            foreach (var organism in organismsToAdd)
+            var enumerable = organismsToAdd.ToArray();
+
+            foreach (var organism in enumerable)
             {
                 var x = this.rnd.NextDouble() * this.Width;
                 var y = this.rnd.NextDouble() * this.Height;
 
                 organism.Position = new Position(x, y);
-
-                var organism1 = organism;
-
-                this.InvokeLocked(() => this.organisms.Add(organism1));
             }
+
+            this.InvokeLocked(() => this.organisms.AddRange(enumerable));
         }
 
-        public void Move(Animal animal, double distance)
+        public void PassTime()
+        {
+            this.SeedPlants();
+
+            this.organisms.RemoveAll(o => o.Health <= 0);
+
+            foreach (var organism in this.Organisms.ToArray())
+            {
+                var local = organism;
+
+                local.Age++;
+
+                Task.Factory.StartNew(() => local.Behave(this)).ContinueWith(
+                    t =>
+                    {
+                        if (t.Exception != null)
+                        {
+                            var ex = t.Exception;
+
+                            // TODO - Log exceptions.
+                        }
+                    });
+            }
+
+            this.Statistics.Calculate(this.Organisms);
+        }
+
+        public Animal GenerateDefault<TAnimal>() where TAnimal : Animal, new()
+        {
+            var output = new TAnimal();
+
+            output.Size = output.InitialSize;
+            output.Health = output.InitialSize * Animal.HungerPercentage;
+            output.Speed = output.InitialSpeed;
+            output.Sight = output.InitialSight;
+            output.Generation = 1;
+
+            return output;
+        }
+
+        internal void Move(Animal animal, double distance)
         {
             var radian = Position.DegreeToRadian(animal.Direction);
             
@@ -98,7 +145,7 @@
                     });
         }
 
-        public void Reproduce<T>(T parentA, T parentB)
+        internal void Reproduce<T>(T parentA, T parentB)
             where T : Animal
         {
             var enumeratedList = this.Organisms.ToArray();
@@ -108,75 +155,38 @@
                 return;
             }
 
-            var speciesCount = enumeratedList.OfType<T>().Count();
-
             var child = parentA.Reproduce(parentB);
 
             child.Speed = child.Speed > MaxSpeed ? MaxSpeed : child.Speed;
-            child.Size = child.Size < MinimumeSize ? MinimumeSize : child.Size;
+            child.Size = child.Size < MinimumSize ? MinimumSize : child.Size;
 
             child.Position = new Position(parentA.Position.X, parentA.Position.Y);
-            
-            this.InvokeLocked(() =>
-                {
-                    this.organisms.Add(child);
-                    if (speciesCount <= 10)
-                    {
-                        return;
-                    }
 
-                    parentA.Health = HealthAfterReproduction;
-                    parentB.Health = HealthAfterReproduction;
-                });
+            parentA.Health = HealthAfterReproduction;
+            parentB.Health = HealthAfterReproduction;
+
+            this.InvokeLocked(() => this.organisms.Add(child));
         }
 
-        public void Eat(Animal pred, Organism prey)
+        internal void Eat(Animal pred, Organism prey)
         {
             this.InvokeLocked(
                 () =>
                     {
-                        var consumed = Math.Min(prey.Health, HealthPerBite);
+                        var consumed = Math.Min(prey.Health, pred.Size / HealthPerBiteModifier);
                         prey.Health -= consumed;                        
-                        pred.Health += Math.Min(pred.Size - pred.Health, consumed);
+                        pred.Health += consumed;
                     });
         }
 
-        public void PassTime()
+        private void SeedPlants()
         {
-            var tasks = new List<Task>();
-
             var numOfPlants = this.Organisms.OfType<Plant>().Count();
 
             if (numOfPlants < MaxNumOfPlants && this.rnd.NextDouble() < ChanceOfSeedingAPlant)
             {
                 this.Seed(new[] { new Plant() });
             }
-
-            foreach (var organism in this.Organisms.ToArray())
-            {
-                organism.Age++;                
-
-                if (organism.Health <= 0)
-                {
-                    this.organisms.Remove(organism);
-                }
-                else
-                {
-                    var organism1 = organism;
-                    Task.Factory.StartNew(() => organism1.Behave(this)).ContinueWith(
-                        t =>
-                            {
-                                if (t.Exception != null)
-                                {
-                                    throw t.Exception;
-                                }
-                            });
-                }
-            }
-
-            Task.WaitAll(tasks.ToArray());
-
-            this.Statistics.Calculate(this.Organisms);
         }
 
         private T InvokeLocked<T>(Func<T> method)

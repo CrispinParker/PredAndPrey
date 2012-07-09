@@ -2,6 +2,13 @@
 {
     public abstract class Organism
     {
+        protected Organism()
+        {
+            this.Id = Environment.Instance.GetNextId();
+        }
+
+        public int Id { get; private set; }
+
         public double Size { get; set; }
 
         public double Health { get; set; }

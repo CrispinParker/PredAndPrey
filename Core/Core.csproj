@@ -41,6 +41,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Carnivore.cs" />
+    <Compile Include="Models\CarnivoreA.cs" />
+    <Compile Include="Models\CarnivoreB.cs" />
+    <Compile Include="Models\HerbivoreB.cs" />
+    <Compile Include="Models\HerbivoreA.cs" />
     <Compile Include="Models\Organism.cs" />
     <Compile Include="Environment.cs" />
     <Compile Include="Models\Animal.cs" />
