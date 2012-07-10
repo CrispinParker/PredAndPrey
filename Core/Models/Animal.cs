@@ -16,7 +16,7 @@ namespace PredAndPrey.Core.Models
 
         private const int ContactDistance = 3;
 
-        private const double MutationAmount = 0.03;
+        private const double MutationAmount = 0.07;
 
         private const double ReproductiveHealthPercentage = 0.5;
 

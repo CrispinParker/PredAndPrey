@@ -92,27 +92,17 @@
         {
             this.SeedPlants();
 
-            this.organisms.RemoveAll(o => o.Health <= 0);
+            this.InvokeLocked(() => this.organisms.RemoveAll(o => o.Health <= 0));
 
-            foreach (var organism in this.Organisms.ToArray())
+            var localArray = this.Organisms.ToArray();
+
+            foreach (var organism in localArray)
             {
-                var local = organism;
-
-                local.Age++;
-
-                Task.Factory.StartNew(() => local.Behave(this)).ContinueWith(
-                    t =>
-                    {
-                        if (t.Exception != null)
-                        {
-                            var ex = t.Exception;
-
-                            // TODO - Log exceptions.
-                        }
-                    });
+                this.DoBehaviour(organism);
+                organism.Age++;
             }
 
-            this.Statistics.Calculate(this.Organisms);
+            this.Statistics.Calculate(localArray);
         }
 
         public Animal GenerateDefault<TAnimal>() where TAnimal : Animal, new()
@@ -138,11 +128,7 @@
             x = x < 0 ? 0 : x > this.Width ? this.Width : x;
             y = y < 0 ? 0 : y > this.Height ? this.Height : y;
 
-            this.InvokeLocked(
-                () =>
-                    {
-                        animal.Position = new Position(x, y);
-                    });
+            animal.Position = new Position(x, y);
         }
 
         internal void Reproduce<T>(T parentA, T parentB)
@@ -155,6 +141,8 @@
                 return;
             }
 
+            var speciesCount = enumeratedList.Count(o => o.GetType() == parentA.GetType());
+
             var child = parentA.Reproduce(parentB);
 
             child.Speed = child.Speed > MaxSpeed ? MaxSpeed : child.Speed;
@@ -162,21 +150,43 @@
 
             child.Position = new Position(parentA.Position.X, parentA.Position.Y);
 
-            parentA.Health = HealthAfterReproduction;
-            parentB.Health = HealthAfterReproduction;
+            if (speciesCount < 10)
+            {
+                parentA.Health = 500;
+                parentB.Health = 500;
+                child.Health = 500;
+            }
+            else
+            {
+                parentA.Health = HealthAfterReproduction;
+                parentB.Health = HealthAfterReproduction;
+            }
 
             this.InvokeLocked(() => this.organisms.Add(child));
         }
 
         internal void Eat(Animal pred, Organism prey)
         {
-            this.InvokeLocked(
-                () =>
+            var consumed = Math.Min(prey.Health, pred.Size / HealthPerBiteModifier);
+            prey.Health -= consumed;
+            pred.Health += consumed;
+        }
+
+        private void DoBehaviour(Organism organism)
+        {
+            Task.Factory.StartNew(() => organism.Behave(this))
+                .ContinueWith(t =>
                     {
-                        var consumed = Math.Min(prey.Health, pred.Size / HealthPerBiteModifier);
-                        prey.Health -= consumed;                        
-                        pred.Health += consumed;
+                        if (t.Exception != null)
+                        {
+                            this.LogException(t.Exception);
+                        }
                     });
+        }
+
+        private void LogException(AggregateException exception)
+        {
+            // Todo - Log exceptions.
         }
 
         private void SeedPlants()

@@ -26,7 +26,7 @@
 
         private bool isPassingTime;
 
-        private int trackedAnimal;
+        private int? trackedAnimal;
 
         public MainWindow()
         {
@@ -79,21 +79,19 @@
             {
                 FrameworkElement element;
 
-                double canvasLeft;
-                double canvasTop;
+                var canvasLeft = organism.Position.X;
+                var canvasTop = organism.Position.Y;
 
                 var plant = organism as Plant;
                 if (plant != null)
                 {
-                    element = this.displayElementFacotry.CreateElement(plant);
-                    canvasLeft = plant.Position.X - (element.Width / 2);
-                    canvasTop = plant.Position.Y - (element.Height / 2);
+                    element = this.displayElementFacotry.GetElement(plant);
+                    canvasLeft -= element.Width / 2;
+                    canvasTop -= element.Height / 2;
                 }
                 else
                 {
-                    element = this.displayElementFacotry.CreateElement((Animal)organism);
-                    canvasLeft = organism.Position.X;
-                    canvasTop = organism.Position.Y;
+                    element = this.displayElementFacotry.GetElement((Animal)organism);
                 }
 
                 element.SetValue(Canvas.LeftProperty, canvasLeft);
@@ -118,6 +116,8 @@
 
                 PART_Canvas.Children.Add(element);
             }
+
+            this.displayElementFacotry.Purge(organisms.Select(o => o.Id).ToArray());
         }
 
         private void UpdateStatistics()
@@ -138,15 +138,30 @@
 
             var red = 255 * rnd.NextDouble();
             var green = 255 * rnd.NextDouble();
+            var blue = 255d;
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 15; i++)
             {
-                var herbivore = rnd.NextDouble() > 0.5 
-                    ? Environment.Instance.GenerateDefault<HerbivoreA>() 
-                    : Environment.Instance.GenerateDefault<HerbivoreB>();
+                var herbivore = Environment.Instance.GenerateDefault<HerbivoreA>();
+
                 herbivore.Features.Add("Red", red);
                 herbivore.Features.Add("Green", green);
-                herbivore.Features.Add("Blue", 255);
+                herbivore.Features.Add("Blue", blue);
+
+                organisms.Add(herbivore);
+            }
+
+            red = 126 * rnd.NextDouble();
+            green = 255;
+            blue = (126 * rnd.NextDouble()) + 126;
+
+            for (int i = 0; i < 15; i++)
+            {
+                var herbivore = Environment.Instance.GenerateDefault<HerbivoreB>();
+
+                herbivore.Features.Add("Red", red);
+                herbivore.Features.Add("Green", green);
+                herbivore.Features.Add("Blue", blue);
 
                 organisms.Add(herbivore);
             }
@@ -160,15 +175,28 @@
 
             var organisms = new List<Organism>();
 
+            var red = 255d;
             var green = 255 * rnd.NextDouble();
             var blue = 126 * rnd.NextDouble();
 
-            for (int i = 0; i < 5; i++)
+            var grey = (126 * rnd.NextDouble()) + 126;
+
+            for (int i = 0; i < 7; i++)
             {
-                var carnivore = rnd.NextDouble() > 0.5
-                    ? Environment.Instance.GenerateDefault<CarnivoreA>()
-                    : Environment.Instance.GenerateDefault<CarnivoreB>();
-                carnivore.Features.Add("Red", 255);
+                var carnivore = Environment.Instance.GenerateDefault<CarnivoreA>();
+
+                carnivore.Features.Add("Red", red);
+                carnivore.Features.Add("Green", grey);
+                carnivore.Features.Add("Blue", grey);
+
+                organisms.Add(carnivore);
+            }
+
+            for (int i = 0; i < 7; i++)
+            {
+                var carnivore = Environment.Instance.GenerateDefault<CarnivoreB>();
+
+                carnivore.Features.Add("Red", red);
                 carnivore.Features.Add("Green", green);
                 carnivore.Features.Add("Blue", blue);
 
@@ -198,7 +226,7 @@
             else
             {
                 this.PART_Canvas.RenderTransform = null;
-                this.trackedAnimal = 0;
+                this.trackedAnimal = null;
             }
         }
     }

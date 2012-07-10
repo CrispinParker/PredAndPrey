@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Core="clr-namespace:PredAndPrey.Core;assembly=PredAndPrey.Core"
         Title="MainWindow" 
-        Height="622" 
+        Height="644" 
         Width="800"
         Name="PART_MainWindow"
         >
@@ -22,7 +22,7 @@
     <Grid>
         <Viewbox 
             Stretch="Fill"
-            Margin="0,0,10,10"
+            Margin="0,22,10,10"
             >
         <Canvas
             Name="PART_Canvas"

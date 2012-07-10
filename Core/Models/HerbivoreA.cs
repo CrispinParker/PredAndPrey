@@ -5,11 +5,11 @@ namespace PredAndPrey.Core.Models
 
     public class HerbivoreA : Herbivore
     {
-        private const double DefaultInitialSize = 175;
+        private const double DefaultInitialSize = 200;
 
-        private const double DefaultInitialSpeed = 2.5;
+        private const double DefaultInitialSpeed = 4.5;
 
-        private const double DefaultInitialSight = 40;
+        private const double DefaultInitialSight = 50;
 
         public override double InitialSpeed
         {

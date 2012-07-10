@@ -28,7 +28,9 @@ namespace PredAndPrey.Core.Models
             var sqrX = Math.Pow(lengthX, 2);
             var sqrY = Math.Pow(lengthY, 2);
 
-            return Math.Sqrt(sqrX + sqrY);
+            var ceiling = Math.Ceiling(sqrX + sqrY);
+
+            return Math.Sqrt(ceiling);
         }
 
         public double Angle(Position target)
