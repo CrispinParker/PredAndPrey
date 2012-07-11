@@ -24,13 +24,23 @@
             Stretch="Fill"
             Margin="0,22,10,10"
             >
-        <Canvas
-            Name="PART_Canvas"
-            Width="{Binding Source={x:Static Core:Environment.Instance}, Path=Width}"
-            Height="{Binding Source={x:Static Core:Environment.Instance}, Path=Height}" 
-            MouseDown="HandleCanvasMouseDown"
-            Background="Transparent"
-            />
+            <Grid>
+                <Canvas
+                    Name="PART_PlantCanvas"
+                    Width="{Binding Source={x:Static Core:Environment.Instance}, Path=Width}"
+                    Height="{Binding Source={x:Static Core:Environment.Instance}, Path=Height}" 
+                    />
+                <Canvas
+                    Name="PART_HerbivoreCanvas"
+                    Width="{Binding Source={x:Static Core:Environment.Instance}, Path=Width}"
+                    Height="{Binding Source={x:Static Core:Environment.Instance}, Path=Height}" 
+                    />
+                <Canvas
+                    Name="PART_CarnivoreCanvas"
+                    Width="{Binding Source={x:Static Core:Environment.Instance}, Path=Width}"
+                    Height="{Binding Source={x:Static Core:Environment.Instance}, Path=Height}" 
+                    />
+            </Grid>
         </Viewbox>
         <Button
             Width="100"

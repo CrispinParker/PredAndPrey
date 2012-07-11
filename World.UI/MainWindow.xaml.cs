@@ -7,9 +7,6 @@
     using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
-    using System.Windows.Input;
-    using System.Windows.Media;
-    using System.Windows.Shapes;
     using System.Windows.Threading;
 
     using PredAndPrey.Core;
@@ -25,8 +22,6 @@
         private readonly DisplayElementFactory displayElementFacotry;
 
         private bool isPassingTime;
-
-        private int? trackedAnimal;
 
         public MainWindow()
         {
@@ -72,49 +67,51 @@
 
         private void DrawWorld()
         {
-            PART_Canvas.Children.Clear();
             var organisms = Environment.Instance.Organisms.ToArray();
 
-            foreach (var organism in organisms.OfType<Plant>().Cast<Organism>().Union(organisms.OfType<Herbivore>()).Union(organisms.OfType<Carnivore>()))
+            this.PART_PlantCanvas.Children.Clear();
+
+            FrameworkElement element;
+
+            foreach (var plant in organisms.OfType<Plant>())
             {
-                FrameworkElement element;
+                element = this.displayElementFacotry.GetElement(plant);
 
-                var canvasLeft = organism.Position.X;
-                var canvasTop = organism.Position.Y;
-
-                var plant = organism as Plant;
-                if (plant != null)
-                {
-                    element = this.displayElementFacotry.GetElement(plant);
-                    canvasLeft -= element.Width / 2;
-                    canvasTop -= element.Height / 2;
-                }
-                else
-                {
-                    element = this.displayElementFacotry.GetElement((Animal)organism);
-                }
+                var canvasLeft = plant.Position.X - (element.Width / 2);
+                var canvasTop = plant.Position.Y - (element.Height / 2);
 
                 element.SetValue(Canvas.LeftProperty, canvasLeft);
                 element.SetValue(Canvas.TopProperty, canvasTop);
 
-                /*
-                if (this.trackedAnimal != 0 && this.trackedAnimal == Convert.ToInt32(element.Tag))
-                {
-                    var scaleTransform = this.PART_Canvas.RenderTransform as ScaleTransform;
+                this.PART_PlantCanvas.Children.Add(element);
+            }
 
-                    if (scaleTransform == null)
-                    {
-                        this.PART_Canvas.RenderTransform = new ScaleTransform(5, 5, organism.Position.X, organism.Position.Y);
-                    }
-                    else
-                    {
-                        scaleTransform.CenterX = organism.Position.X;
-                        scaleTransform.CenterY = organism.Position.Y;
-                    }
-                }
-                */
+            this.PART_HerbivoreCanvas.Children.Clear();
+            foreach (var herbivore in organisms.OfType<Herbivore>())
+            {
+                var canvasLeft = herbivore.Position.X;
+                var canvasTop = herbivore.Position.Y;
 
-                PART_Canvas.Children.Add(element);
+                element = this.displayElementFacotry.GetElement(herbivore);
+
+                element.SetValue(Canvas.LeftProperty, canvasLeft);
+                element.SetValue(Canvas.TopProperty, canvasTop);
+
+                this.PART_HerbivoreCanvas.Children.Add(element);
+            }
+
+            this.PART_CarnivoreCanvas.Children.Clear();
+            foreach (var carnivore in organisms.OfType<Carnivore>())
+            {
+                var canvasLeft = carnivore.Position.X;
+                var canvasTop = carnivore.Position.Y;
+
+                element = this.displayElementFacotry.GetElement(carnivore);
+
+                element.SetValue(Canvas.LeftProperty, canvasLeft);
+                element.SetValue(Canvas.TopProperty, canvasTop);
+
+                this.PART_CarnivoreCanvas.Children.Add(element);
             }
 
             this.displayElementFacotry.Purge(organisms.Select(o => o.Id).ToArray());
@@ -175,7 +172,7 @@
 
             var organisms = new List<Organism>();
 
-            var red = 255d;
+            const double Red = 255d;
             var green = 255 * rnd.NextDouble();
             var blue = 126 * rnd.NextDouble();
 
@@ -185,7 +182,7 @@
             {
                 var carnivore = Environment.Instance.GenerateDefault<CarnivoreA>();
 
-                carnivore.Features.Add("Red", red);
+                carnivore.Features.Add("Red", Red);
                 carnivore.Features.Add("Green", grey);
                 carnivore.Features.Add("Blue", grey);
 
@@ -196,7 +193,7 @@
             {
                 var carnivore = Environment.Instance.GenerateDefault<CarnivoreB>();
 
-                carnivore.Features.Add("Red", red);
+                carnivore.Features.Add("Red", Red);
                 carnivore.Features.Add("Green", green);
                 carnivore.Features.Add("Blue", blue);
 
@@ -209,25 +206,6 @@
         private void Reset(object sender, RoutedEventArgs e)
         {
             Environment.Instance = null;
-        }
-
-        private void HandleCanvasMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            var pt = e.GetPosition((UIElement)sender);
-
-            var hitTestResult = VisualTreeHelper.HitTest(this.PART_Canvas, pt);
-
-            var path = hitTestResult.VisualHit as Path;
-
-            if (path != null && (path.Tag is int))
-            {
-                this.trackedAnimal = Convert.ToInt32(path.Tag);
-            }
-            else
-            {
-                this.PART_Canvas.RenderTransform = null;
-                this.trackedAnimal = null;
-            }
         }
     }
 }

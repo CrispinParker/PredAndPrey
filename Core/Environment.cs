@@ -9,7 +9,7 @@
 
     public class Environment
     {
-        private const int MaxElements = 1000;
+        private const int MaxAnimals = 750;
 
         private const int HealthPerBiteModifier = 5;
 
@@ -134,9 +134,9 @@
         internal void Reproduce<T>(T parentA, T parentB)
             where T : Animal
         {
-            var enumeratedList = this.Organisms.ToArray();
+            var enumeratedList = this.Organisms.OfType<Animal>().ToArray();
 
-            if (enumeratedList.Count() > MaxElements)
+            if (enumeratedList.Count() > MaxAnimals)
             {
                 return;
             }

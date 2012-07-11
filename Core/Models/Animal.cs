@@ -172,6 +172,7 @@ namespace PredAndPrey.Core.Models
             if (closestMate.Item1 < ContactDistance)
             {
                 environment.Reproduce(this, closestMate.Item2);
+                this.Wander(environment);
             }
             else
             {
