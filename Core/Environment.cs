@@ -6,14 +6,11 @@
     using System.Threading.Tasks;
 
     using PredAndPrey.Core.Models;
+    using PredAndPrey.Core.Properties;
 
     public class Environment
     {
-        private const int MaxAnimals = 750;
-
         private const int HealthPerBiteModifier = 5;
-
-        private const int MaxNumOfPlants = 100;
 
         private const double ChanceOfSeedingAPlant = 0.3;
 
@@ -22,6 +19,10 @@
         private const double MaxSpeed = 10;
 
         private const double MinimumSize = 40;
+
+        private const int SpeciesPreservationLevel = 10;
+
+        private const int SpeciesPreservationHealth = 500;
 
         private static Environment instance;
 
@@ -35,8 +36,8 @@
 
         private Environment()
         {
-            this.Width = 1000;
-            this.Height = 750;
+            this.Width = 1500;
+            this.Height = 1000;
             this.rnd = new Random();
             this.Statistics = new Statistics();
         }
@@ -136,7 +137,7 @@
         {
             var enumeratedList = this.Organisms.OfType<Animal>().ToArray();
 
-            if (enumeratedList.Count() > MaxAnimals)
+            if (enumeratedList.Count() > Settings.Default.MaxAnimals)
             {
                 return;
             }
@@ -150,11 +151,11 @@
 
             child.Position = new Position(parentA.Position.X, parentA.Position.Y);
 
-            if (speciesCount < 10)
+            if (speciesCount < SpeciesPreservationLevel)
             {
-                parentA.Health = 500;
-                parentB.Health = 500;
-                child.Health = 500;
+                parentA.Health = SpeciesPreservationHealth;
+                parentB.Health = SpeciesPreservationHealth;
+                child.Health = SpeciesPreservationHealth;
             }
             else
             {
@@ -193,7 +194,7 @@
         {
             var numOfPlants = this.Organisms.OfType<Plant>().Count();
 
-            if (numOfPlants < MaxNumOfPlants && this.rnd.NextDouble() < ChanceOfSeedingAPlant)
+            if (numOfPlants < Settings.Default.MaxPlants && this.rnd.NextDouble() < ChanceOfSeedingAPlant)
             {
                 this.Seed(new[] { new Plant() });
             }

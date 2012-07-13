@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{BB968E94-83BC-4277-B900-F7A0A47F3475}</ProjectGuid>
+    <ProjectGuid>{313BFD31-F29E-4D4B-BFEB-88980C23A0F2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PredAndPrey.Core</RootNamespace>
-    <AssemblyName>PredAndPrey.Core</AssemblyName>
+    <RootNamespace>PredAndPrey.Test</RootNamespace>
+    <AssemblyName>PredAndPrey.Test</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="nunit.framework, Version=2.6.0.12051, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.2.6.0.12054\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -40,31 +43,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\Carnivore.cs" />
-    <Compile Include="Models\CarnivoreA.cs" />
-    <Compile Include="Models\CarnivoreB.cs" />
-    <Compile Include="Models\HerbivoreB.cs" />
-    <Compile Include="Models\HerbivoreA.cs" />
-    <Compile Include="Models\Organism.cs" />
-    <Compile Include="Environment.cs" />
-    <Compile Include="Models\Animal.cs" />
-    <Compile Include="Models\Plant.cs" />
-    <Compile Include="Models\Position.cs" />
-    <Compile Include="Models\Herbivore.cs" />
+    <Compile Include="OrganismVisibilityPerformanceFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <Compile Include="Statistics.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>PublicSettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{BB968E94-83BC-4277-B900-F7A0A47F3475}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

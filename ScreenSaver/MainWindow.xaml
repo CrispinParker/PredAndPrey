@@ -1,18 +1,22 @@
 ﻿<Window 
-    x:Class="PredAndPrey.World.UI.MainWindow"
+    x:Class="PredAndPrey.ScreenSaver.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:Core="clr-namespace:PredAndPrey.Core;assembly=PredAndPrey.Core"
     xmlns:WpfCore="clr-namespace:PredAndPrey.Wpf.Core;assembly=PredAndPrey.Wpf.Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:Properties="clr-namespace:PredAndPrey.Wpf.Core.Properties;assembly=PredAndPrey.Wpf.Core"
+    xmlns:Properties1="clr-namespace:PredAndPrey.Wpf.Core.Properties;assembly=PredAndPrey.Wpf.Core"
     Title="Pred and Prey" 
     Height="644" 
     Width="800"
     Name="PART_MainWindow"
     d:DataContext="{x:Type WpfCore:MainController}"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    Topmost="True"
+    WindowStyle="None"
+    KeyDown="Window_KeyDown"
+    >
     <Window.Background>
         <LinearGradientBrush
             StartPoint="0.5,1"
@@ -28,7 +32,7 @@
     <Grid>
         <Viewbox 
             Stretch="Fill"
-            Margin="0,22,10,10"
+            Margin="0,0,15,15"
             >
             <Grid
                 Width="{Binding Source={x:Static Core:Environment.Instance}, Path=Width}"
@@ -48,29 +52,14 @@
                     />
             </Grid>
         </Viewbox>
-        <Button
-            Width="100"
-            Command="{Binding Reset}"
-            Content="Reset" 
-            VerticalAlignment="Top"
+        <TextBlock
+            Text="Press [Esc] to exit"
+            FontSize="12"
+            Foreground="White"
             HorizontalAlignment="Left"
-            />
-        <Button
-            Margin="0,0,102,0"
-            Width="100"
-            Command="{Binding ShowSettings}"
-            CommandParameter="{Binding ElementName=PART_MainWindow}"
-            Content="Settings"
             VerticalAlignment="Top"
-            HorizontalAlignment="Right" />
-        <ToggleButton
-            HorizontalAlignment="Right"
-            VerticalAlignment="Top"
-            Content="Pause"
-            Width="100" 
-            IsChecked="{Binding Path=IsPaused}"
+            Margin="2" 
             />
-
         <Border
             Margin="0,0,10,10"
             BorderBrush="#50ffffff"
@@ -87,7 +76,7 @@
                     TargetType="Border">
                     <Style.Triggers>
                         <DataTrigger
-                            Binding="{Binding Source={x:Static Properties:Settings.Default}, Path=ShowStats}"
+                            Binding="{Binding Source={x:Static Properties1:Settings.Default}, Path=ShowStats}"
                             Value="False">
                             <Setter
                                 Property="Visibility"
@@ -98,7 +87,7 @@
             </Border.Style>
             <Grid>
                 <ListBox
-                    ItemsSource="{Binding Path=Stats}"                    
+                    ItemsSource="{Binding Path=Stats}"
                     Background="Transparent"
                     BorderBrush="Transparent"
                     Margin="0,16,0,0"
@@ -137,8 +126,8 @@
                 <TextBlock
                     Margin="0,1,63,-1"
                     HorizontalAlignment="Right">Min</TextBlock>
-                <TextBlock 
-                    Margin="0,0,22,0" 
+                <TextBlock
+                    Margin="0,0,22,0"
                     HorizontalAlignment="Right">Max</TextBlock>
                 <TextBlock
                     HorizontalAlignment="Right"

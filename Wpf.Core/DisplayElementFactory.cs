@@ -1,4 +1,4 @@
-﻿namespace World.UI
+﻿namespace PredAndPrey.Wpf.Core
 {
     using System;
     using System.Collections.Generic;
@@ -15,6 +15,8 @@
 
         private readonly IDictionary<int, MultiDataPath> elementMap = new Dictionary<int, MultiDataPath>(); 
 
+        private readonly IDictionary<int, Ellipse> plantMap = new Dictionary<int, Ellipse>();
+
         private readonly Tuple<Geometry, Geometry> herbivoreGeometryA;
 
         private readonly Tuple<Geometry, Geometry> herbivoreGeometryB;
@@ -22,6 +24,8 @@
         private readonly Tuple<Geometry, Geometry> carnivoreGeometryA;
 
         private readonly Tuple<Geometry, Geometry> carnivoreGeometryB;
+
+        private readonly RadialGradientBrush plantBrush;
 
         public DisplayElementFactory()
         {
@@ -50,38 +54,34 @@
             this.carnivoreGeometryB.Item1.Freeze();
             this.carnivoreGeometryB.Item2.Freeze();
 
-
             this.factoryMap.Add(typeof(HerbivoreA), this.CreateHerbivoreAElement);
             this.factoryMap.Add(typeof(HerbivoreB), this.CreateHerbivoreBElement);
             this.factoryMap.Add(typeof(CarnivoreA), this.CreateCanivoreAElement);
             this.factoryMap.Add(typeof(CarnivoreB), this.CreateCanivoreBElement);
+
+            this.plantBrush = new RadialGradientBrush(Colors.DarkGreen, Color.FromArgb(0, 0, 255, 0));
         }
 
-        public FrameworkElement GetElement(Animal animal)
+        public FrameworkElement GetElement(Organism organism)
         {
-            MultiDataPath multiDataPath;
-            if (!this.elementMap.TryGetValue(animal.Id, out multiDataPath))
+            var animal = organism as Animal;
+            if (animal != null)
             {
-                multiDataPath = this.factoryMap[animal.GetType()](animal);
-                this.elementMap.Add(animal.Id, multiDataPath);
+                MultiDataPath multiDataPath;
+                if (!this.elementMap.TryGetValue(animal.Id, out multiDataPath))
+                {
+                    multiDataPath = this.factoryMap[animal.GetType()](animal);
+                    this.elementMap.Add(animal.Id, multiDataPath);
+                }
+
+                var path = multiDataPath.GetPath();
+
+                ApplyRenderTransform(animal, path);
+
+                return path;
             }
 
-            var path = multiDataPath.GetPath();
-
-            ApplyRenderTransform(animal, path);
-
-            return path;
-        }
-
-        public FrameworkElement GetElement(Plant plant)
-        {
-            var radius = Math.Max(0, plant.Health / 4);
-            return new Ellipse
-            {
-                Width = radius,
-                Height = radius,
-                Fill = new RadialGradientBrush(Colors.DarkGreen, Color.FromArgb(0, 0, 255, 0))
-            };
+            return this.GetPlantElement(organism);
         }
 
         public void Purge(int[] livingIds)
@@ -89,6 +89,11 @@
             foreach (var idToRemove in this.elementMap.Keys.Where(k => livingIds.All(id => id != k)).ToArray())
             {
                 this.elementMap.Remove(idToRemove);
+            }
+
+            foreach (var idToRemove in this.plantMap.Keys.Where(k => livingIds.All(id => id != k)).ToArray())
+            {
+                this.plantMap.Remove(idToRemove);
             }
         }
 
@@ -137,6 +142,28 @@
             {
                 rotateTransform.Angle = animal.Direction - 270;
             }
+        }
+
+        private FrameworkElement GetPlantElement(Organism plant)
+        {
+            var radius = Math.Max(0, plant.Health / 4);
+
+            Ellipse ellipse;
+            if (!this.plantMap.TryGetValue(plant.Id, out ellipse))
+            {
+                ellipse = new Ellipse
+                    {
+                        Fill = this.plantBrush,
+                        Tag = plant.Id
+                    };
+
+                this.plantMap.Add(plant.Id, ellipse);
+            }
+
+            ellipse.Width = radius;
+            ellipse.Height = radius;
+
+            return ellipse;
         }
 
         private MultiDataPath CreateHerbivoreAElement(Animal animal)

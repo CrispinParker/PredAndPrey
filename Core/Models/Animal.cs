@@ -4,6 +4,8 @@ namespace PredAndPrey.Core.Models
     using System.Collections.Generic;
     using System.Linq;
 
+    using PredAndPrey.Core.Properties;
+
     using Environment = PredAndPrey.Core.Environment;
 
     public abstract class Animal : Organism
@@ -12,11 +14,7 @@ namespace PredAndPrey.Core.Models
 
         private const double HealthBehaviourCost = 0.1;
 
-        private const double ChanceOfMutation = 0.1;
-
         private const int ContactDistance = 3;
-
-        private const double MutationAmount = 0.07;
 
         private const double ReproductiveHealthPercentage = 0.5;
 
@@ -132,7 +130,7 @@ namespace PredAndPrey.Core.Models
         {
             var output = this.rnd.NextDouble() > 0.5 ? parentAValue : parentBValue;
 
-            if (this.rnd.NextDouble() <= ChanceOfMutation)
+            if (this.rnd.NextDouble() <= Settings.Default.ChanceOfMutation)
             {
                 output = this.Deviate(output);
             }
@@ -217,7 +215,7 @@ namespace PredAndPrey.Core.Models
 
         private double Deviate(double source)
         {
-            var deviation = (source * MutationAmount) * ((this.rnd.NextDouble() * 2) - 1);
+            var deviation = (source * Settings.Default.MutationAmount) * ((this.rnd.NextDouble() * 2) - 1);
 
             return source + deviation;
         }

@@ -22,15 +22,10 @@ namespace PredAndPrey.Core.Models
 
         public double Distance(Position target)
         {
-            var lengthX = this.X - target.X;
-            var lengthY = this.Y - target.Y;
+            var x = this.X - target.X;
+            var y = this.Y - target.Y;
 
-            var sqrX = Math.Pow(lengthX, 2);
-            var sqrY = Math.Pow(lengthY, 2);
-
-            var ceiling = Math.Ceiling(sqrX + sqrY);
-
-            return Math.Sqrt(ceiling);
+            return Math.Sqrt((x * x) + (y * y));
         }
 
         public double Angle(Position target)

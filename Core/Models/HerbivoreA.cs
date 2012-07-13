@@ -9,7 +9,7 @@ namespace PredAndPrey.Core.Models
 
         private const double DefaultInitialSpeed = 4.5;
 
-        private const double DefaultInitialSight = 50;
+        private const double DefaultInitialSight = 75;
 
         public override double InitialSpeed
         {
