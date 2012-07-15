@@ -2,15 +2,19 @@
     x:Class="PredAndPrey.Wpf.Core.SettingsWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:Properties="clr-namespace:PredAndPrey.Core.Properties;assembly=PredAndPrey.Core"
-    xmlns:LocalProperties="clr-namespace:PredAndPrey.Wpf.Core.Properties"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:Core="clr-namespace:PredAndPrey.Wpf.Core" 
     Title="Pred and Prey Settings"
     Height="407"
     Width="300"
     ResizeMode="NoResize"
     ShowInTaskbar="False"
     WindowStartupLocation="CenterOwner"
-    WindowStyle="None">
+    WindowStyle="None"
+    Name="PART_Window"
+    d:DataContext="{x:Type Core:SettingsController}"
+    mc:Ignorable="d">
     <Border
         Padding="10"
         BorderBrush="Black"
@@ -28,61 +32,87 @@
             <TextBlock
                 DockPanel.Dock="Top"
                 TextAlignment="Center"
-                Margin="0,10,0,5">Maximum number of animals</TextBlock>
+                Margin="0,10,0,5">
+                <Run
+                    Text="Screen size " />
+                <TextBlock
+                    Text="{Binding Path=ScreenSizeDescription, StringFormat=({0})}" />
+            </TextBlock>
             <Slider
                 DockPanel.Dock="Top"
-                Value="{Binding Source={x:Static Properties:Settings.Default}, Path=MaxAnimals}"
-                Minimum="50"
-                Maximum="500" />
-
-            <TextBlock
-                DockPanel.Dock="Top"
-                TextAlignment="Center"
-                Margin="0,10,0,5">Maximum number of plants</TextBlock>
-            <Slider
-                DockPanel.Dock="Top"
-                Value="{Binding Source={x:Static Properties:Settings.Default}, Path=MaxPlants}"
-                Minimum="20"
-                Maximum="200" />
-
-            <TextBlock
-                DockPanel.Dock="Top"
-                TextAlignment="Center"
-                Margin="0,10,0,5">Run speed</TextBlock>
-            <Slider
-                DockPanel.Dock="Top"
-                Value="{Binding Source={x:Static LocalProperties:Settings.Default}, Path=RunSpeed}"
+                Value="{Binding Path=ScreenSize}"
                 Minimum="1"
                 Maximum="5" />
 
             <TextBlock
                 DockPanel.Dock="Top"
                 TextAlignment="Center"
-                Margin="0,10,0,5">Chance of mutation</TextBlock>
+                Margin="0,10,0,5">
+                <Run
+                    Text="Run speed " />
+                <TextBlock
+                    Text="{Binding Path=RunSpeed, StringFormat=({0})}" />
+            </TextBlock>
             <Slider
                 DockPanel.Dock="Top"
-                Value="{Binding Source={x:Static Properties:Settings.Default}, Path=ChanceOfMutation}"
+                Value="{Binding Path=RunSpeed}"
+                Minimum="1"
+                Maximum="5" />
+
+            <TextBlock
+                DockPanel.Dock="Top"
+                TextAlignment="Center"
+                Margin="0,10,0,5"> 
+                <Run
+                    Text="Maximum number of animals " />
+                <TextBlock
+                    Text="{Binding Path=MaxAnimals, StringFormat=({0})}" />
+            </TextBlock>
+            <Slider
+                DockPanel.Dock="Top"
+                Value="{Binding Path=MaxAnimals}"
+                Minimum="50"
+                Maximum="500" />
+
+            <TextBlock
+                DockPanel.Dock="Top"
+                TextAlignment="Center"
+                Margin="0,10,0,5">
+                <Run
+                    Text="Chance of mutation " />
+                <TextBlock
+                    Text="{Binding Path=ChanceOfMutation, StringFormat=P}" />
+            </TextBlock>
+            <Slider
+                DockPanel.Dock="Top"
+                Value="{Binding Path=ChanceOfMutation}"
                 Minimum="0"
                 Maximum="1" />
 
             <TextBlock
                 DockPanel.Dock="Top"
                 TextAlignment="Center"
-                Margin="0,10,0,5">Mutation amount</TextBlock>
+                Margin="0,10,0,5">
+                <Run
+                    Text="Mutation severity " />
+                <TextBlock
+                    Text="{Binding Path=MutationSeverity, StringFormat=P}" />
+            </TextBlock>
             <Slider
                 DockPanel.Dock="Top"
-                Value="{Binding Source={x:Static Properties:Settings.Default}, Path=MutationAmount}"
+                Value="{Binding Path=MutationSeverity}"
                 Minimum="0"
                 Maximum="0.5" />
 
             <ToggleButton
-                IsChecked="{Binding Source={x:Static LocalProperties:Settings.Default}, Path=ShowStats}"
+                IsChecked="{Binding Path=ShowStatistics}"
                 Content="Show Statistics"
                 DockPanel.Dock="Top"
                 Margin="20, 10, 20, 5" />
 
             <Button
-                Click="CloseWindow"
+                Command="{Binding Path=SaveAndCloseCommand}"
+                CommandParameter="{Binding ElementName=PART_Window}"
                 Margin="20, 5, 20, 10"
                 Content="Save and Close"
                 IsDefault="True" />

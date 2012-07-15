@@ -27,25 +27,17 @@
     </Window.Background>
     <Grid>
         <Viewbox 
-            Stretch="Fill"
-            Margin="0,22,10,10"
-            >
+            Stretch="Fill">
             <Grid
-                Width="{Binding Source={x:Static Core:Environment.Instance}, Path=Width}"
-                Height="{Binding Source={x:Static Core:Environment.Instance}, Path=Height}"
+                Width="{Binding Path=ScreenWidth}"
+                Height="{Binding Path=ScreenHeight}"
                 >
-                <WpfCore:BoundCanvas
-                    Name="PART_PlantCanvas"
-                    BoundChildren="{Binding Plants}"
-                    />
-                <WpfCore:BoundCanvas
-                    Name="PART_HerbivoreCanvas"
-                    BoundChildren="{Binding Herbivores}" 
-                    />
-                <WpfCore:BoundCanvas
-                    Name="PART_CarnivoreCanvas"
-                    BoundChildren="{Binding Carnivores}" 
-                    />
+                <ContentControl
+                    Content="{Binding Path=PlantVisualHost}" />
+                <ContentControl
+                    Content="{Binding Path=HerbivoreVisualHost}" />
+                <ContentControl
+                    Content="{Binding Path=CarnivoreVisualHost}" />
             </Grid>
         </Viewbox>
         <Button
@@ -87,7 +79,7 @@
                     TargetType="Border">
                     <Style.Triggers>
                         <DataTrigger
-                            Binding="{Binding Source={x:Static Properties:Settings.Default}, Path=ShowStats}"
+                            Binding="{Binding Path=ShowStatistics}"
                             Value="False">
                             <Setter
                                 Property="Visibility"

@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
 
     using PredAndPrey.Core.Models;
-    using PredAndPrey.Core.Properties;
 
     public class Environment
     {
@@ -36,8 +35,8 @@
 
         private Environment()
         {
-            this.Width = 1500;
-            this.Height = 1000;
+            this.Width = SettingsHelper.Instance.ScreenWidth;
+            this.Height = SettingsHelper.Instance.ScreenHeight;
             this.rnd = new Random();
             this.Statistics = new Statistics();
         }
@@ -137,7 +136,7 @@
         {
             var enumeratedList = this.Organisms.OfType<Animal>().ToArray();
 
-            if (enumeratedList.Count() > Settings.Default.MaxAnimals)
+            if (enumeratedList.Count() > SettingsHelper.Instance.MaxAnimals)
             {
                 return;
             }
@@ -194,7 +193,7 @@
         {
             var numOfPlants = this.Organisms.OfType<Plant>().Count();
 
-            if (numOfPlants < Settings.Default.MaxPlants && this.rnd.NextDouble() < ChanceOfSeedingAPlant)
+            if (numOfPlants < SettingsHelper.Instance.MaxPlants && this.rnd.NextDouble() < ChanceOfSeedingAPlant)
             {
                 this.Seed(new[] { new Plant() });
             }

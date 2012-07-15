@@ -1,38 +1,42 @@
 ﻿namespace PredAndPrey.Wpf.Core
 {
     using System;
-    using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.ComponentModel;
     using System.Linq;
     using System.Windows;
-    using System.Windows.Controls;
     using System.Windows.Input;
     using System.Windows.Threading;
 
     using PredAndPrey.Core;
     using PredAndPrey.Core.Models;
-    using PredAndPrey.Wpf.Core.Properties;
+    using PredAndPrey.Wpf.Core.Visuals;
 
     using Environment = PredAndPrey.Core.Environment;
 
-    public class MainController
+    public class MainController : INotifyPropertyChanged
     {
-        private readonly DisplayElementFactory displayElementFacotry;
+        private readonly OrganismVisualFactory visualFactory;
 
         private bool isPassingTime;
 
         public MainController()
         {
             Environment.Instance.Reset();
-
+            
+            this.Stats = new ObservableCollection<StatBase>(); 
             this.CreateCommands();
-            this.CreateCollections();
-            this.displayElementFacotry = new DisplayElementFactory();
+            this.visualFactory = new OrganismVisualFactory();
+            this.PlantVisualHost = new VisualHost();
+            this.HerbivoreVisualHost = new VisualHost();
+            this.CarnivoreVisualHost = new VisualHost();
 
             var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
             timer.Tick += this.PassTime;
             timer.Start();
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public ICommand Reset { get; set; }
 
@@ -42,40 +46,57 @@
 
         public bool IsPaused { get; set; }
 
-        public ObservableCollection<StatBase> Stats { get; private set; }
-
-        public ObservableCollection<FrameworkElement> Plants { get; private set; }
-
-        public ObservableCollection<FrameworkElement> Herbivores { get; private set; }
-
-        public ObservableCollection<FrameworkElement> Carnivores { get; private set; }
-
-        private static void PurgeDecessed(int[] livingIds, ICollection<FrameworkElement> targetCollection)
+        public double ScreenWidth
         {
-            foreach (var child in targetCollection.ToArray())
+            get
             {
-                var elementId = child.Tag as int?;
-
-                if (!elementId.HasValue || !livingIds.Contains(elementId.Value))
-                {
-                    targetCollection.Remove(child);
-                }
+                return SettingsHelper.Instance.ScreenWidth;
             }
         }
 
-        private void CreateCollections()
+        public double ScreenHeight
         {
-            this.Stats = new ObservableCollection<StatBase>();
-            this.Plants = new ObservableCollection<FrameworkElement>();
-            this.Herbivores = new ObservableCollection<FrameworkElement>();
-            this.Carnivores = new ObservableCollection<FrameworkElement>();
+            get
+            {
+                return SettingsHelper.Instance.ScreenHeight;
+            }
         }
+
+        public bool ShowStatistics
+        {
+            get
+            {
+                return SettingsHelper.Instance.ShowStatistics;
+            }
+        }
+
+        public ObservableCollection<StatBase> Stats { get; private set; }
+
+        public VisualHost PlantVisualHost { get; private set; }
+
+        public VisualHost HerbivoreVisualHost { get; private set; }
+
+        public VisualHost CarnivoreVisualHost { get; private set; }
 
         private void CreateCommands()
         {
             this.Reset = new UICommand(o => Environment.Instance.Reset());
             this.Pause = new UICommand(o => this.IsPaused = this.IsPaused != true);
-            this.ShowSettings = new UICommand(o => new SettingsWindow { Owner = o as Window }.Show());
+            this.ShowSettings = new UICommand(this.ShowSettingsWindow);
+        }
+
+        private void ShowSettingsWindow(object obj)
+        {
+            var parentWindow = obj as Window;
+
+            var settingsWindow = new SettingsWindow { Owner = parentWindow };
+
+            settingsWindow.ShowDialog();
+
+            if (this.PropertyChanged != null)
+            {
+                this.PropertyChanged(this, new PropertyChangedEventArgs(string.Empty));
+            }
         }
 
         private void PassTime(object sender, EventArgs eventArgs)
@@ -87,65 +108,34 @@
 
             this.isPassingTime = true;
 
-            for (int i = 0; i < Settings.Default.RunSpeed; i++)
+            for (int i = 0; i < SettingsHelper.Instance.RunSpeed; i++)
             {
                 Environment.Instance.PassTime();
             }
 
-            if (!Environment.Instance.Organisms.OfType<Animal>().Any())
+            var organisms = Environment.Instance.Organisms.ToArray();
+
+            if (!organisms.OfType<Animal>().Any())
             {
                 Environment.Instance.Reset();                
             }
 
-            this.UpdateUIElements();
+            var plants = this.visualFactory.GetVisuals(organisms.OfType<Plant>());
+            var herbivores = this.visualFactory.GetVisuals(organisms.OfType<Herbivore>());
+            var carnivores = this.visualFactory.GetVisuals(organisms.OfType<Carnivore>());
 
-            if (Settings.Default.ShowStats)
+            this.PlantVisualHost.RenderVisuals(plants);
+            this.HerbivoreVisualHost.RenderVisuals(herbivores);
+            this.CarnivoreVisualHost.RenderVisuals(carnivores);
+
+            if (SettingsHelper.Instance.ShowStatistics)
             {
                 this.UpdateStatistics();
             }
 
+            this.visualFactory.Purge(organisms.Select(o => o.Id));
+
             this.isPassingTime = false;
-        }
-
-        private void UpdateUIElements()
-        {
-            var organisms = Environment.Instance.Organisms.ToArray();
-
-            this.DrawOrganism(organisms.OfType<Plant>(), this.Plants, true);
-            this.DrawOrganism(organisms.OfType<Herbivore>(), this.Herbivores);
-            this.DrawOrganism(organisms.OfType<Carnivore>(), this.Carnivores);
-
-            var livingIds = organisms.Select(o => o.Id).ToArray();
-
-            this.displayElementFacotry.Purge(livingIds);
-            PurgeDecessed(livingIds, this.Plants);
-            PurgeDecessed(livingIds, this.Herbivores);
-            PurgeDecessed(livingIds, this.Carnivores);
-        }
-
-        private void DrawOrganism(IEnumerable<Organism> organisms, ICollection<FrameworkElement> targetCollection, bool centreOnElement = false)
-        {
-            foreach (var organism in organisms)
-            {
-                var left = organism.Position.X;
-                var top = organism.Position.Y;
-
-                var element = this.displayElementFacotry.GetElement(organism);
-
-                if (centreOnElement)
-                {
-                    left -= element.Width / 2;
-                    top -= element.Height / 2;
-                }
-
-                element.SetValue(Canvas.LeftProperty, left);
-                element.SetValue(Canvas.TopProperty, top);
-
-                if (!targetCollection.Contains(element))
-                {
-                    targetCollection.Add(element);
-                }
-            }
         }
 
         private void UpdateStatistics()

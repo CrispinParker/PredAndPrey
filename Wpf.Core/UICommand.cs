@@ -14,7 +14,7 @@ namespace PredAndPrey.Wpf.Core
         {
         }
 
-        private UICommand(Action<object> executeMethod, Func<object, bool> canExecuteMethod)
+        public UICommand(Action<object> executeMethod, Func<object, bool> canExecuteMethod)
         {
             this.executeMethod = executeMethod;
             this.canExecuteMethod = canExecuteMethod;

@@ -7,15 +7,11 @@ namespace PredAndPrey.Core.Models
     {
         private const double DefaultInitialSize = 200;
 
-        private const double DefaultInitialSpeed = 5;
-
-        private const double DefaultInitialSight = 80;
-
         public override double InitialSpeed
         {
             get
             {
-                return DefaultInitialSpeed;
+                return SettingsHelper.Instance.CarnivoreInitialSpeed;
             }
         }
 
@@ -31,7 +27,7 @@ namespace PredAndPrey.Core.Models
         {
             get
             {
-                return DefaultInitialSight;
+                return SettingsHelper.Instance.CarnivoreInitialSight;
             }
         }
 
