@@ -10,9 +10,9 @@ namespace PredAndPrey.Core.Models
     {
         public const double HungerPercentage = 0.75;
 
-        private const int ContactDistance = 3;
+        public const double ReproductiveHealthPercentage = 0.5;
 
-        private const double ReproductiveHealthPercentage = 0.5;
+        private const int ContactDistance = 3;
 
         private readonly Random rnd;
 
@@ -83,14 +83,14 @@ namespace PredAndPrey.Core.Models
 
         public override void Behave(Environment environment)
         {
-            this.Health -= 200 / environment.Width;
+            this.Health -= 130 / environment.Width;
 
             if (this.Health <= 0)
             {
                 return;
             }
 
-            var organisms = environment.Organisms.ToArray();
+            var organisms = environment.Organisms.Where(o => o != this).ToArray();
 
             Tuple<double, Organism> closestPrey;
             Tuple<double, Animal> closestThreat;
@@ -195,11 +195,21 @@ namespace PredAndPrey.Core.Models
         private bool TryFindClosest<T>(IEnumerable<T> organisms, out Tuple<double, T> closest)
             where T : Organism
         {
-            closest = organisms
-                .Select(m => Tuple.Create(this.Position.Distance(m.Position), m))
-                .Where(o => o.Item2 != this && o.Item1 < this.Sight)
-                .OrderBy(tup => tup.Item1)
+            closest = null;
+
+            var org = organisms
+                .OrderBy(o => o.Position.Distance(this.Position))
                 .FirstOrDefault();
+
+            if (org != null)
+            {
+                var distance = org.Position.Distance(this.Position);
+
+                if (distance < this.Sight)
+                {
+                    closest = Tuple.Create(distance, org);
+                }
+            }
 
             return closest != null;
         }

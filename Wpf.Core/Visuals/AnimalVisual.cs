@@ -8,15 +8,15 @@ namespace PredAndPrey.Wpf.Core.Visuals
 
     public abstract class AnimalVisual : OrganismVisual
     {
+        private static readonly Pen StaticPen = new Pen(Brushes.Black, 0.5);
+
+        private readonly TransformGroup transformGroup = new TransformGroup();
+
         private readonly TranslateTransform translateTransform = new TranslateTransform();
 
         private readonly RotateTransform rotateTransform = new RotateTransform();
 
         private readonly ScaleTransform scaleTransform = new ScaleTransform();
-
-        private readonly Geometry[] geometrys;
-
-        private Geometry frozenGeometry;
 
         private bool isFirstUpdate = true;
 
@@ -24,17 +24,26 @@ namespace PredAndPrey.Wpf.Core.Visuals
 
         private double centerY;
 
-        protected AnimalVisual(Animal animal)
-            : base(BrushFromAnimal(animal), new Pen(Brushes.Black, 0.5))
+        static AnimalVisual()
         {
-            this.geometrys = this.InitialiseGeometrys();
+            StaticPen.Freeze();
+        }
+
+        protected AnimalVisual(Animal animal)
+            : base(BrushFromAnimal(animal), StaticPen)
+        {
+            this.initialiseTransformGroup();
         }
 
         public override Geometry Geometry
         {
             get
             {
-                return this.frozenGeometry;
+                var output = this.GetRandomGeometry().Clone();
+                output.Transform = this.transformGroup.Clone();
+                output.Freeze();
+
+                return output;
             }
         }
 
@@ -49,16 +58,14 @@ namespace PredAndPrey.Wpf.Core.Visuals
             if (this.isFirstUpdate)
             {
                 this.isFirstUpdate = false;
-                this.SetupDimensions(animal);
+                this.SetupScale(animal);
+                this.SetupCentrePoint();
             }
 
             this.translateTransform.X = animal.Position.X - this.centerX;
             this.translateTransform.Y = animal.Position.Y - this.centerY;
 
             this.rotateTransform.Angle = animal.Direction - 270;
-
-            this.frozenGeometry = this.GetRandomGeometry().Clone();
-            this.frozenGeometry.Freeze();
         }
 
         private static Brush BrushFromAnimal(Animal animal)
@@ -71,25 +78,26 @@ namespace PredAndPrey.Wpf.Core.Visuals
             green = green < 0 ? 0 : green > 255 ? 255 : green;
             blue = blue < 0 ? 0 : blue > 255 ? 255 : blue;
 
-            return new SolidColorBrush(Color.FromRgb((byte)red, (byte)green, (byte)blue));
+            var brush = new SolidColorBrush(Color.FromRgb((byte)red, (byte)green, (byte)blue));
+
+            brush.Freeze();
+
+            return brush;
         }
 
         private Geometry GetRandomGeometry()
         {
             var rnd = new Random();
 
-            return this.geometrys[rnd.Next(0, this.geometrys.Count())];
+            return this.GeometryData[rnd.Next(0, this.GeometryData.Count())];
         }
 
-        private void SetupDimensions(Animal animal)
+        private void SetupCentrePoint()
         {
-            var speedTransform = animal.InitialSpeed / animal.Speed;
-            var sizeTransform = animal.Size / animal.InitialSize;
+            var geometry = this.GetRandomGeometry().Clone();
+            geometry.Transform = this.scaleTransform;
 
-            this.scaleTransform.ScaleX = this.Scale * speedTransform;
-            this.scaleTransform.ScaleY = this.Scale * sizeTransform;
-
-            var bounds = this.geometrys.First().Bounds;
+            var bounds = geometry.Bounds;
 
             this.centerX = bounds.Width / 2;
             this.centerY = bounds.Height / 2;
@@ -101,23 +109,20 @@ namespace PredAndPrey.Wpf.Core.Visuals
             this.scaleTransform.CenterY = this.centerY;
         }
 
-        private Geometry[] InitialiseGeometrys()
+        private void SetupScale(Animal animal)
         {
-            return this.GeometryData.Select(CreateGeometry).ToArray();
+            var speedTransform = animal.InitialSpeed / animal.Speed;
+            var sizeTransform = animal.Size / animal.InitialSize;
+
+            this.scaleTransform.ScaleX = this.Scale * speedTransform;
+            this.scaleTransform.ScaleY = this.Scale * sizeTransform;
         }
 
-        private Geometry CreateGeometry(Geometry data)
+        private void initialiseTransformGroup()
         {
-            var geometry = data.Clone();
-
-            var transformGroup = new TransformGroup();
-            transformGroup.Children.Add(this.scaleTransform);
-            transformGroup.Children.Add(this.rotateTransform);
-            transformGroup.Children.Add(this.translateTransform);
-
-            geometry.Transform = transformGroup;
-
-            return geometry;
+            this.transformGroup.Children.Add(this.scaleTransform);
+            this.transformGroup.Children.Add(this.rotateTransform);
+            this.transformGroup.Children.Add(this.translateTransform);
         }
     }
 }

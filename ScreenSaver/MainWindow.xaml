@@ -32,7 +32,8 @@
         <Viewbox 
             Stretch="Fill"
             Margin="0,0,15,15"
-            >
+            IsHitTestVisible="False"
+            IsManipulationEnabled="False">
             <Grid
                 Width="{Binding Source={x:Static Core:Environment.Instance}, Path=Width}"
                 Height="{Binding Source={x:Static Core:Environment.Instance}, Path=Height}"

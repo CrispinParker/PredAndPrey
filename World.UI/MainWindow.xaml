@@ -6,13 +6,13 @@
     xmlns:WpfCore="clr-namespace:PredAndPrey.Wpf.Core;assembly=PredAndPrey.Wpf.Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:Properties="clr-namespace:PredAndPrey.Wpf.Core.Properties;assembly=PredAndPrey.Wpf.Core"
     Title="Pred and Prey" 
     Height="644" 
     Width="800"
     Name="PART_MainWindow"
     d:DataContext="{x:Type WpfCore:MainController}"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    >
     <Window.Background>
         <LinearGradientBrush
             StartPoint="0.5,1"
@@ -27,7 +27,10 @@
     </Window.Background>
     <Grid>
         <Viewbox 
-            Stretch="Fill">
+            Stretch="Fill"
+            IsHitTestVisible="False"
+            IsManipulationEnabled="False"
+            >
             <Grid
                 Width="{Binding Path=ScreenWidth}"
                 Height="{Binding Path=ScreenHeight}"

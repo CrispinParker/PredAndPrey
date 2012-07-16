@@ -13,6 +13,11 @@ namespace PredAndPrey.Wpf.Core.Visuals
 
         private EllipseGeometry frozenGeometry;
 
+        static PlantVisual()
+        {
+            PlantBrush.Freeze();
+        }
+
         public PlantVisual(Organism plant)
             : base(PlantBrush, null)
         {

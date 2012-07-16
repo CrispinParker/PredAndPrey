@@ -24,11 +24,9 @@
 
         public OrganismVisual[] GetVisuals(IEnumerable<Organism> organisms)
         {
-            var iteratedArray = organisms.ToArray();
-
             var output = new List<OrganismVisual>();
 
-            foreach (var organism in iteratedArray.OfType<Plant>().Cast<Organism>().Union(iteratedArray.OfType<Herbivore>()).Union(iteratedArray.OfType<Carnivore>()))
+            foreach (var organism in organisms)
             {
                 OrganismVisual visual;
                 if (!this.elementMap.TryGetValue(organism.Id, out visual))

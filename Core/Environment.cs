@@ -68,6 +68,8 @@
             }
         }
 
+        public bool CanReproduce { get; private set; }
+
         public int GetNextId()
         {
             return this.InvokeLocked(() => ++idSeed);
@@ -95,6 +97,8 @@
             this.InvokeLocked(() => this.organisms.RemoveAll(o => o.Health <= 0));
 
             var localArray = this.Organisms.ToArray();
+
+            this.CanReproduce = localArray.OfType<Animal>().Count() <= SettingsHelper.Instance.MaxAnimals;
 
             foreach (var organism in localArray)
             {
@@ -134,12 +138,14 @@
         internal void Reproduce<T>(T parentA, T parentB)
             where T : Animal
         {
-            var enumeratedList = this.Organisms.OfType<Animal>().ToArray();
-
-            if (enumeratedList.Count() > SettingsHelper.Instance.MaxAnimals)
+            if (!this.CanReproduce)
             {
+                parentA.Health = parentA.Size * Animal.ReproductiveHealthPercentage;
+                parentB.Health = parentB.Size * Animal.ReproductiveHealthPercentage;
                 return;
             }
+
+            var enumeratedList = this.Organisms.OfType<Animal>().ToArray();
 
             var speciesCount = enumeratedList.Count(o => o.GetType() == parentA.GetType());
 
