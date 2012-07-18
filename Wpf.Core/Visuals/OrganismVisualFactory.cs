@@ -17,8 +17,10 @@
         {
             this.factoryMap.Add(typeof(HerbivoreA), CreateHerbivoreAVisual);
             this.factoryMap.Add(typeof(HerbivoreB), CreateHerbivoreBVisual);
+            this.factoryMap.Add(typeof(HerbivoreC), CreateHerbivoreCVisual);
             this.factoryMap.Add(typeof(CarnivoreA), CreateCanivoreAVisual);
             this.factoryMap.Add(typeof(CarnivoreB), CreateCanivoreBVisual);
+            this.factoryMap.Add(typeof(CarnivoreC), CreateCanivoreCVisual);
             this.factoryMap.Add(typeof(Plant), CreatePlantElement);
         }
 
@@ -74,6 +76,16 @@
         private static OrganismVisual CreatePlantElement(Organism organism)
         {
             return new PlantVisual(organism);
+        }
+
+        private static OrganismVisual CreateCanivoreCVisual(Organism animal)
+        {
+            return new CarnivoreCVisual((Animal)animal);
+        }
+
+        private static OrganismVisual CreateHerbivoreCVisual(Organism animal)
+        {
+            return new HerbivoreCVisual((Animal)animal);
         }
     }
 }

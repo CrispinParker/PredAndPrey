@@ -5,12 +5,28 @@ namespace PredAndPrey.Core.Models
 
     public abstract class Carnivore : Animal
     {
-        protected override IEnumerable<Organism> SelectPrey(IEnumerable<Organism> visibleOrganisms)
+        public override double InitialSpeed
         {
-            return visibleOrganisms.OfType<Herbivore>();
+            get
+            {
+                return SettingsHelper.Instance.CarnivoreInitialSpeed;
+            }
         }
 
-        protected override IEnumerable<Animal> SelectPredators(IEnumerable<Organism> visibleOrganisms)
+        public override double InitialSight
+        {
+            get
+            {
+                return SettingsHelper.Instance.CarnivoreInitialSight;
+            }
+        }
+
+        protected override IEnumerable<Organism> SelectPrey(IEnumerable<Organism> organisms)
+        {
+            return organisms.OfType<Herbivore>();
+        }
+
+        protected override IEnumerable<Animal> SelectPredators(IEnumerable<Organism> organisms)
         {
             return Enumerable.Empty<Animal>();
         }

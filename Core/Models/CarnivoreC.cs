@@ -3,18 +3,18 @@ namespace PredAndPrey.Core.Models
     using System.Collections.Generic;
     using System.Linq;
 
-    public class CarnivoreC : Carnivore
+    public class CarnivoreB : Carnivore
     {
         protected override Animal CreateInstance()
         {
-            var child = new CarnivoreC();
+            var child = new CarnivoreB();
 
             return child;
         }
 
         protected override IEnumerable<Animal> SelectMates(IEnumerable<Organism> organisms)
         {
-            return organisms.OfType<CarnivoreC>();
+            return organisms.OfType<CarnivoreB>();
         }
     }
 }

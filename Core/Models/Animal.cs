@@ -12,6 +12,8 @@ namespace PredAndPrey.Core.Models
 
         public const double ReproductiveHealthPercentage = 0.5;
 
+        private const double DefaultInitialSize = 200;
+
         private const int ContactDistance = 3;
 
         private readonly Random rnd;
@@ -26,7 +28,13 @@ namespace PredAndPrey.Core.Models
 
         public abstract double InitialSpeed { get; }
 
-        public abstract double InitialSize { get; }
+        public double InitialSize
+        {
+            get
+            {
+                return DefaultInitialSize;
+            }
+        }
 
         public abstract double InitialSight { get; }
 
@@ -104,7 +112,7 @@ namespace PredAndPrey.Core.Models
             {
                 this.SeekFood(environment, closestPrey);
             }
-            else if (this.IsReproductive && this.TryFindClosest(this.SelectMates(organisms), out closestMate))
+            else if (this.IsReproductive && this.TryFindClosest(this.SelectMates(organisms).Where(o => o.IsReproductive), out closestMate))
             {
                 this.SeekMate(environment, closestMate);
             }
@@ -116,11 +124,11 @@ namespace PredAndPrey.Core.Models
 
         protected abstract Animal CreateInstance();
 
-        protected abstract IEnumerable<Animal> SelectMates(IEnumerable<Organism> visibleOrganisms);
+        protected abstract IEnumerable<Animal> SelectMates(IEnumerable<Organism> organisms);
 
-        protected abstract IEnumerable<Organism> SelectPrey(IEnumerable<Organism> visibleOrganisms);
+        protected abstract IEnumerable<Organism> SelectPrey(IEnumerable<Organism> organisms);
 
-        protected abstract IEnumerable<Animal> SelectPredators(IEnumerable<Organism> visibleOrganisms);
+        protected abstract IEnumerable<Animal> SelectPredators(IEnumerable<Organism> organisms);
 
         private double GetInheritedValue(double parentAValue, double parentBValue)
         {

@@ -89,6 +89,8 @@
     <Compile Include="Visuals\AnimalVisual.cs" />
     <Compile Include="Visuals\CarnivoreAVisual.cs" />
     <Compile Include="Visuals\CarnivoreBVisual.cs" />
+    <Compile Include="Visuals\CarnivoreCVisual.cs" />
+    <Compile Include="Visuals\HerbivoreCVisual.cs" />
     <Compile Include="Visuals\HerbivoreBVisual.cs" />
     <Compile Include="Visuals\HerbivoreAVisual.cs" />
     <Compile Include="Visuals\OrganismVisual.cs" />

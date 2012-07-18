@@ -26,7 +26,7 @@
             var green = 255 * rnd.NextDouble();
             var blue = 255d;
 
-            for (int i = 0; i < 15; i++)
+            for (int i = 0; i < 10; i++)
             {
                 var herbivore = Environment.Instance.GenerateDefault<HerbivoreA>();
 
@@ -41,9 +41,24 @@
             green = 255;
             blue = (126 * rnd.NextDouble()) + 126;
 
-            for (int i = 0; i < 15; i++)
+            for (int i = 0; i < 10; i++)
             {
                 var herbivore = Environment.Instance.GenerateDefault<HerbivoreB>();
+
+                herbivore.Features.Add("Red", red);
+                herbivore.Features.Add("Green", green);
+                herbivore.Features.Add("Blue", blue);
+
+                organisms.Add(herbivore);
+            }
+
+            red = (126 * rnd.NextDouble()) + 126;
+            green = 255;
+            blue = (126 * rnd.NextDouble()) + 126;
+
+            for (int i = 0; i < 10; i++)
+            {
+                var herbivore = Environment.Instance.GenerateDefault<HerbivoreC>();
 
                 herbivore.Features.Add("Red", red);
                 herbivore.Features.Add("Green", green);
@@ -67,7 +82,7 @@
 
             var grey = (126 * rnd.NextDouble()) + 126;
 
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < 5; i++)
             {
                 var carnivore = Environment.Instance.GenerateDefault<CarnivoreA>();
 
@@ -78,13 +93,24 @@
                 organisms.Add(carnivore);
             }
 
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < 5; i++)
             {
                 var carnivore = Environment.Instance.GenerateDefault<CarnivoreB>();
 
                 carnivore.Features.Add("Red", Red);
                 carnivore.Features.Add("Green", green);
                 carnivore.Features.Add("Blue", blue);
+
+                organisms.Add(carnivore);
+            }
+
+            for (int i = 0; i < 5; i++)
+            {
+                var carnivore = Environment.Instance.GenerateDefault<CarnivoreC>();
+
+                carnivore.Features.Add("Red", grey);
+                carnivore.Features.Add("Green", green);
+                carnivore.Features.Add("Blue", grey);
 
                 organisms.Add(carnivore);
             }
