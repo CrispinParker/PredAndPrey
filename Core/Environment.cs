@@ -15,7 +15,7 @@
 
         private const int HealthAfterReproduction = 10;
 
-        private const double MaxSpeed = 10;
+        private const double MaxSpeedModifier = 100;
 
         private const double MinimumSize = 40;
 
@@ -32,6 +32,10 @@
         private readonly object syncLock = new object();
 
         private readonly Random rnd;
+
+        private double width;
+
+        private double maxSpeed;
 
         private Environment()
         {
@@ -56,7 +60,19 @@
 
         public Statistics Statistics { get; set; }
 
-        public double Width { get; set; }
+        public double Width
+        {
+            get
+            {
+                return this.width;
+            }
+
+            set
+            {
+                this.width = value;
+                this.maxSpeed = value / MaxSpeedModifier;
+            }
+        }
 
         public double Height { get; set; }
 
@@ -145,22 +161,19 @@
                 return;
             }
 
-            var enumeratedList = this.Organisms.OfType<Animal>().ToArray();
-
-            var speciesCount = enumeratedList.Count(o => o.GetType() == parentA.GetType());
-
             var child = parentA.Reproduce(parentB);
 
-            child.Speed = child.Speed > MaxSpeed ? MaxSpeed : child.Speed;
+            child.Speed = child.Speed > this.maxSpeed ? this.maxSpeed : child.Speed;
             child.Size = child.Size < MinimumSize ? MinimumSize : child.Size;
 
             child.Position = new Position(parentA.Position.X, parentA.Position.Y);
 
-            if (speciesCount < SpeciesPreservationLevel)
+            var speciesCount = this.Organisms.OfType<Animal>().Count(o => o.GetType() == parentA.GetType());
+
+            if (speciesCount <= SpeciesPreservationLevel)
             {
                 parentA.Health = SpeciesPreservationHealth;
                 parentB.Health = SpeciesPreservationHealth;
-                child.Health = SpeciesPreservationHealth;
             }
             else
             {

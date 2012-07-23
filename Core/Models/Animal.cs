@@ -91,7 +91,7 @@ namespace PredAndPrey.Core.Models
 
         public override void Behave(Environment environment)
         {
-            this.Health -= 130 / environment.Width;
+            this.Health -= SettingsHelper.Instance.HealthCost;
 
             if (this.Health <= 0)
             {
@@ -112,7 +112,7 @@ namespace PredAndPrey.Core.Models
             {
                 this.SeekFood(environment, closestPrey);
             }
-            else if (this.IsReproductive && this.TryFindClosest(this.SelectMates(organisms).Where(o => o.IsReproductive), out closestMate))
+            else if (this.IsReproductive && this.TryFindClosest(this.SelectMates(organisms).Where(o => o.IsReproductive), out closestMate, false))
             {
                 this.SeekMate(environment, closestMate);
             }
@@ -200,7 +200,7 @@ namespace PredAndPrey.Core.Models
             }
         }
 
-        private bool TryFindClosest<T>(IEnumerable<T> organisms, out Tuple<double, T> closest)
+        private bool TryFindClosest<T>(IEnumerable<T> organisms, out Tuple<double, T> closest, bool inSight = true)
             where T : Organism
         {
             closest = null;
@@ -213,7 +213,7 @@ namespace PredAndPrey.Core.Models
             {
                 var distance = org.Position.Distance(this.Position);
 
-                if (distance < this.Sight)
+                if (!inSight || distance < this.Sight)
                 {
                     closest = Tuple.Create(distance, org);
                 }
@@ -229,7 +229,7 @@ namespace PredAndPrey.Core.Models
 
         private double Deviate(double source)
         {
-            var deviation = (source * SettingsHelper.Instance.MutationSeverity) * ((this.rnd.NextDouble() * 2) - 1);
+            var deviation = (source * SettingsHelper.Instance.MutationSeverity) * (this.rnd.NextDouble() - 0.5);
 
             return source + deviation;
         }

@@ -40,9 +40,9 @@
             </TextBlock>
             <Slider
                 DockPanel.Dock="Top"
-                Value="{Binding Path=ScreenSize}"
-                Minimum="1"
-                Maximum="5" />
+                Value="{Binding Path=EnvironmentSize}"
+                Minimum="0"
+                Maximum="4" />
 
             <TextBlock
                 DockPanel.Dock="Top"

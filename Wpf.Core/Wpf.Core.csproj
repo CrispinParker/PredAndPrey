@@ -95,7 +95,6 @@
     <Compile Include="Visuals\HerbivoreAVisual.cs" />
     <Compile Include="Visuals\OrganismVisual.cs" />
     <Compile Include="Visuals\OrganismVisualFactory.cs" />
-    <Compile Include="DisplayElementFactory.cs" />
     <Compile Include="EnvironmentExtensions.cs" />
     <Compile Include="MainController.cs" />
     <Compile Include="Visuals\PlantVisual.cs" />

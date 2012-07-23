@@ -118,7 +118,6 @@
             if (!organisms.OfType<Animal>().Any())
             {
                 Environment.Instance.Reset();
-                return;
             }
 
             var plants = this.visualFactory.GetVisuals(organisms.OfType<Plant>());

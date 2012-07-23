@@ -65,7 +65,7 @@ namespace PredAndPrey.Wpf.Core.Visuals
             this.translateTransform.X = animal.Position.X - this.centerX;
             this.translateTransform.Y = animal.Position.Y - this.centerY;
 
-            this.rotateTransform.Angle = animal.Direction - 270;
+            this.rotateTransform.Angle = animal.Direction + 90;
         }
 
         private static Brush BrushFromAnimal(Animal animal)
@@ -98,12 +98,12 @@ namespace PredAndPrey.Wpf.Core.Visuals
             geometry.Transform = this.scaleTransform;
 
             var bounds = geometry.Bounds;
-
+             
             this.centerX = bounds.Width / 2;
             this.centerY = bounds.Height / 2;
 
             this.rotateTransform.CenterX = this.centerX;
-            this.rotateTransform.CenterY = this.centerY * 1.2;
+            this.rotateTransform.CenterY = this.centerY;
 
             this.scaleTransform.CenterX = this.centerX;
             this.scaleTransform.CenterY = this.centerY;

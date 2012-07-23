@@ -8,12 +8,9 @@
 
     public class SettingsController : INotifyPropertyChanged
     {
-        private int screenSize;
-
         public SettingsController()
         {
             this.CreateCommands();
-            this.DetectScreenSize();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -95,80 +92,57 @@
             }
         }
 
-        public int ScreenSize
+        public int EnvironmentSize
         {
             get
             {
-                return this.screenSize;
+                return (int)SettingsHelper.Instance.EnvironmentSize;
             }
 
             set
             {
-                this.screenSize = value;
-
-                this.ApplyScreenSize();
+                SettingsHelper.Instance.EnvironmentSize = (EnvironmentSizeOption)value;
 
                 this.OnPropertyChanged("ScreenSizeDescription");
             }
         }
 
-        public string ScreenSizeDescription { get; set; }
-
-        private void ApplyScreenSize()
+        public string ScreenSizeDescription
         {
-            switch (this.ScreenSize)
+            get
             {
+                return GetScreenSizeDescription();
+            }
+        }
+
+        private static void SaveAndClose(Window window)
+        {
+            SettingsHelper.Instance.Save();
+            window.Close();
+        }
+
+        private static string GetScreenSizeDescription()
+        {
+            switch (SettingsHelper.Instance.EnvironmentSize)
+            {
+                case EnvironmentSizeOption.Small:
+                    return "Small";
+                case EnvironmentSizeOption.Medium:
+                    return "Medium";
+                case EnvironmentSizeOption.Large:
+                    return "Large";
+                case EnvironmentSizeOption.XtraLarge:
+                    return "Extra Large";
+                case EnvironmentSizeOption.Maximum:
+                    return "Maximum";
                 default:
-                    this.ScreenSizeDescription = "Small";
-                    SettingsHelper.Instance.ScreenWidth = 640;
-                    SettingsHelper.Instance.ScreenHeight = 480;
-                    SettingsHelper.Instance.CarnivoreInitialSight = 45;
-                    SettingsHelper.Instance.HerbivoreInitialSight = 40;
-                    SettingsHelper.Instance.CarnivoreInitialSpeed = 3;
-                    SettingsHelper.Instance.HerbivoreInitialSpeed = 2.5;
-                    break;
-                case 2:
-                    this.ScreenSizeDescription = "Medium";
-                    SettingsHelper.Instance.ScreenWidth = 800;
-                    SettingsHelper.Instance.ScreenHeight = 600;
-                    SettingsHelper.Instance.CarnivoreInitialSight = 50;
-                    SettingsHelper.Instance.HerbivoreInitialSight = 45;
-                    SettingsHelper.Instance.CarnivoreInitialSpeed = 4.5;
-                    SettingsHelper.Instance.HerbivoreInitialSpeed = 4;
-                    break;
-                case 3:
-                    this.ScreenSizeDescription = "Large";
-                    SettingsHelper.Instance.ScreenWidth = 1280;
-                    SettingsHelper.Instance.ScreenHeight = 1024;
-                    SettingsHelper.Instance.CarnivoreInitialSight = 60;
-                    SettingsHelper.Instance.HerbivoreInitialSight = 55;
-                    SettingsHelper.Instance.CarnivoreInitialSpeed = 5.5;
-                    SettingsHelper.Instance.HerbivoreInitialSpeed = 5;
-                    break;
-                case 4:
-                    this.ScreenSizeDescription = "Xtra Large";
-                    SettingsHelper.Instance.ScreenWidth = 1600;
-                    SettingsHelper.Instance.ScreenHeight = 1200;
-                    SettingsHelper.Instance.CarnivoreInitialSight = 75;
-                    SettingsHelper.Instance.HerbivoreInitialSight = 70;
-                    SettingsHelper.Instance.CarnivoreInitialSpeed = 6.5;
-                    SettingsHelper.Instance.HerbivoreInitialSpeed = 6;
-                    break;
-                case 5:
-                    this.ScreenSizeDescription = "Maximum";
-                    SettingsHelper.Instance.ScreenWidth = 2560;
-                    SettingsHelper.Instance.ScreenHeight = 1600;
-                    SettingsHelper.Instance.CarnivoreInitialSight = 80;
-                    SettingsHelper.Instance.HerbivoreInitialSight = 75;
-                    SettingsHelper.Instance.CarnivoreInitialSpeed = 7.5;
-                    SettingsHelper.Instance.HerbivoreInitialSpeed = 7;
-                    break;
+                    return string.Empty;
             }
         }
 
         private void CreateCommands()
         {
-            this.SaveAndCloseCommand = new UICommand(w => this.SaveAndClose(w as Window));
+            this.SaveAndCloseCommand = new UICommand(w => SaveAndClose(w as Window));
         }
 
         private void OnPropertyChanged(string propertyName)
@@ -178,41 +152,6 @@
             {
                 eventHandler(this, new PropertyChangedEventArgs(propertyName));
             }
-        }
-
-        private void SaveAndClose(Window window)
-        {
-            SettingsHelper.Instance.Save();
-            SettingsHelper.Instance.Save();
-            window.Close();
-        }
-
-        private void DetectScreenSize()
-        {
-            var screenWidth = (int)SettingsHelper.Instance.ScreenWidth;
-
-            if (screenWidth == 800)
-            {
-                this.screenSize = 2;
-            }
-            else if (screenWidth == 1280)
-            {
-                this.screenSize  = 3;
-            }
-            else if (screenWidth == 1600)
-            {
-                this.screenSize = 4;
-            }
-            else if (screenWidth == 2560)
-            {
-                this.screenSize = 5;
-            }
-            else
-            {
-                this.screenSize = 1;
-            }
-
-            this.ApplyScreenSize();
         }
     }
 }
