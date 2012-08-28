@@ -1,7 +1,6 @@
 namespace PredAndPrey.Wpf.Core.Visuals
 {
     using System;
-    using System.Linq;
     using System.Windows.Media;
 
     using PredAndPrey.Core.Models;
@@ -20,10 +19,6 @@ namespace PredAndPrey.Wpf.Core.Visuals
 
         private bool isFirstUpdate = true;
 
-        private double centerX;
-
-        private double centerY;
-
         static AnimalVisual()
         {
             StaticPen.Freeze();
@@ -39,7 +34,7 @@ namespace PredAndPrey.Wpf.Core.Visuals
         {
             get
             {
-                var output = this.GetRandomGeometry().Clone();
+                var output = this.GetRandomGeometry();
                 output.Transform = this.transformGroup.Clone();
                 output.Freeze();
 
@@ -62,8 +57,8 @@ namespace PredAndPrey.Wpf.Core.Visuals
                 this.SetupCentrePoint();
             }
 
-            this.translateTransform.X = animal.Position.X - this.centerX;
-            this.translateTransform.Y = animal.Position.Y - this.centerY;
+            this.translateTransform.X = animal.Position.X;
+            this.translateTransform.Y = animal.Position.Y;
 
             this.rotateTransform.Angle = animal.Direction + 90;
         }
@@ -87,9 +82,9 @@ namespace PredAndPrey.Wpf.Core.Visuals
 
         private Geometry GetRandomGeometry()
         {
-            var rnd = new Random();
+            var index = new Random().Next(0, this.GeometryData.Length);
 
-            return this.GeometryData[rnd.Next(0, this.GeometryData.Count())];
+            return this.GeometryData[index].Clone();
         }
 
         private void SetupCentrePoint()
@@ -99,14 +94,8 @@ namespace PredAndPrey.Wpf.Core.Visuals
 
             var bounds = geometry.Bounds;
              
-            this.centerX = bounds.Width / 2;
-            this.centerY = bounds.Height / 2;
-
-            this.rotateTransform.CenterX = this.centerX;
-            this.rotateTransform.CenterY = this.centerY;
-
-            this.scaleTransform.CenterX = this.centerX;
-            this.scaleTransform.CenterY = this.centerY;
+            this.rotateTransform.CenterX = bounds.Width / 2;
+            this.rotateTransform.CenterY = bounds.Height / 4;
         }
 
         private void SetupScale(Animal animal)

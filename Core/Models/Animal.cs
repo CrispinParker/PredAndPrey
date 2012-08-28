@@ -224,7 +224,10 @@ namespace PredAndPrey.Core.Models
 
         private void RandomiseDirection()
         {
-            this.Direction += this.rnd.Next(30) - 15;
+            if (this.rnd.NextDouble() < 0.3)
+            {
+                this.Direction += this.rnd.Next(60) - 30;
+            }
         }
 
         private double Deviate(double source)

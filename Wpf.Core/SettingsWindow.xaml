@@ -42,7 +42,7 @@
                 DockPanel.Dock="Top"
                 Value="{Binding Path=EnvironmentSize}"
                 Minimum="0"
-                Maximum="4" />
+                Maximum="2" />
 
             <TextBlock
                 DockPanel.Dock="Top"

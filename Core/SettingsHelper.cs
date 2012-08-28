@@ -7,9 +7,7 @@
     {
         Small = 0,
         Medium = 1,
-        Large = 2,
-        XtraLarge = 3,
-        Maximum = 4
+        Large = 2
     }
 
     public class SettingsHelper
@@ -137,26 +135,6 @@
             switch (this.EnvironmentSize)
             {
                 case EnvironmentSizeOption.Small:
-                    this.ScreenWidth = 640;
-                    this.ScreenHeight = 480;
-                    this.CarnivoreInitialSight = 45;
-                    this.HerbivoreInitialSight = 43;
-                    this.CarnivoreInitialSpeed = 2.6;
-                    this.HerbivoreInitialSpeed = 2.5;
-                    this.MaxPlants = 15;
-                    this.HealthCost = 0.19;
-                    break;
-                case EnvironmentSizeOption.Medium:
-                    this.ScreenWidth = 800;
-                    this.ScreenHeight = 600;
-                    this.CarnivoreInitialSight = 50;
-                    this.HerbivoreInitialSight = 47;
-                    this.CarnivoreInitialSpeed = 4.3;
-                    this.HerbivoreInitialSpeed = 4;
-                    this.MaxPlants = 25;
-                    this.HealthCost = 0.14;
-                    break;
-                case EnvironmentSizeOption.Large:
                     this.ScreenWidth = 1200;
                     this.ScreenHeight = 900;
                     this.CarnivoreInitialSight = 60;
@@ -166,7 +144,7 @@
                     this.MaxPlants = 50;
                     this.HealthCost = 0.11;
                     break;
-                case EnvironmentSizeOption.XtraLarge:
+                case EnvironmentSizeOption.Medium:
                     this.ScreenWidth = 1800;
                     this.ScreenHeight = 1350;
                     this.CarnivoreInitialSight = 75;
@@ -176,7 +154,7 @@
                     this.MaxPlants = 75;
                     this.HealthCost = 0.09;
                     break;
-                case EnvironmentSizeOption.Maximum:
+                case EnvironmentSizeOption.Large:
                     this.ScreenWidth = 2700;
                     this.ScreenHeight = 2025;
                     this.CarnivoreInitialSight = 85;

@@ -131,10 +131,6 @@
                     return "Medium";
                 case EnvironmentSizeOption.Large:
                     return "Large";
-                case EnvironmentSizeOption.XtraLarge:
-                    return "Extra Large";
-                case EnvironmentSizeOption.Maximum:
-                    return "Maximum";
                 default:
                     return string.Empty;
             }
