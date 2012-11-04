@@ -1,7 +1,8 @@
 ﻿namespace PredAndPrey.Wpf.Core
 {
-    using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Windows.Media;
 
     using PredAndPrey.Core.Models;
 
@@ -18,104 +19,51 @@
 
         private static void SeedHerbivors()
         {
-            var rnd = new Random();
-
             var organisms = new List<Organism>();
 
-            var red = 255 * rnd.NextDouble();
-            var green = 255 * rnd.NextDouble();
-            var blue = 255d;
-
-            for (int i = 0; i < 10; i++)
-            {
-                var herbivore = Environment.Instance.GenerateDefault<HerbivoreA>();
-
-                herbivore.Features.Add("Red", red);
-                herbivore.Features.Add("Green", green);
-                herbivore.Features.Add("Blue", blue);
-
-                organisms.Add(herbivore);
-            }
-
-            red = 126 * rnd.NextDouble();
-            green = 255;
-            blue = (126 * rnd.NextDouble()) + 126;
-
-            for (int i = 0; i < 10; i++)
-            {
-                var herbivore = Environment.Instance.GenerateDefault<HerbivoreB>();
-
-                herbivore.Features.Add("Red", red);
-                herbivore.Features.Add("Green", green);
-                herbivore.Features.Add("Blue", blue);
-
-                organisms.Add(herbivore);
-            }
-
-            red = (126 * rnd.NextDouble()) + 126;
-            green = 255;
-            blue = (126 * rnd.NextDouble()) + 126;
-
-            for (int i = 0; i < 10; i++)
-            {
-                var herbivore = Environment.Instance.GenerateDefault<HerbivoreC>();
-
-                herbivore.Features.Add("Red", red);
-                herbivore.Features.Add("Green", green);
-                herbivore.Features.Add("Blue", blue);
-
-                organisms.Add(herbivore);
-            }
+            organisms.AddRange(CreateInstances<HerbivoreA>(10, "#FF8AFF72"));
+            organisms.AddRange(CreateInstances<HerbivoreB>(10, "#FF02FFE2"));
+            organisms.AddRange(CreateInstances<HerbivoreC>(10, "#FFFFA1F7"));
 
             Environment.Instance.Seed(organisms);
         }
 
         private static void SeedCarnivors()
         {
-            var rnd = new Random();
-
             var organisms = new List<Organism>();
 
-            const double Red = 255d;
-            var green = 255 * rnd.NextDouble();
-            var blue = 126 * rnd.NextDouble();
-
-            var grey = (126 * rnd.NextDouble()) + 126;
-
-            for (int i = 0; i < 5; i++)
-            {
-                var carnivore = Environment.Instance.GenerateDefault<CarnivoreA>();
-
-                carnivore.Features.Add("Red", Red);
-                carnivore.Features.Add("Green", grey);
-                carnivore.Features.Add("Blue", grey);
-
-                organisms.Add(carnivore);
-            }
-
-            for (int i = 0; i < 5; i++)
-            {
-                var carnivore = Environment.Instance.GenerateDefault<CarnivoreB>();
-
-                carnivore.Features.Add("Red", Red);
-                carnivore.Features.Add("Green", green);
-                carnivore.Features.Add("Blue", blue);
-
-                organisms.Add(carnivore);
-            }
-
-            for (int i = 0; i < 5; i++)
-            {
-                var carnivore = Environment.Instance.GenerateDefault<CarnivoreC>();
-
-                carnivore.Features.Add("Red", grey);
-                carnivore.Features.Add("Green", green);
-                carnivore.Features.Add("Blue", grey);
-
-                organisms.Add(carnivore);
-            }
+            organisms.AddRange(CreateInstances<CarnivoreA>(10, "#FFFF0B00"));
+            organisms.AddRange(CreateInstances<CarnivoreB>(10, "#FFFFA402"));
+            organisms.AddRange(CreateInstances<CarnivoreC>(10, "#FFFDFF02"));
 
             Environment.Instance.Seed(organisms);
+        }
+
+        private static IEnumerable<Animal> CreateInstances<TAnimal>(int volume, string colourAsString) where TAnimal : Animal, new()
+        {
+            var fromString = ColorConverter.ConvertFromString(colourAsString);
+
+            if (fromString == null)
+            {
+                return Enumerable.Empty<TAnimal>();
+            }
+
+            var color = (Color)fromString;
+
+            var organisms = new List<Animal>();
+
+            for (int i = 0; i < volume; i++)
+            {
+                var herbivore = Environment.Instance.GenerateDefault<TAnimal>();
+
+                herbivore.Features.Add("Red", color.R);
+                herbivore.Features.Add("Green", color.G);
+                herbivore.Features.Add("Blue", color.B);
+
+                organisms.Add(herbivore);
+            }
+
+            return organisms.AsEnumerable();
         }
     }
 }
