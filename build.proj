@@ -5,7 +5,7 @@
     DefaultTargets="Build">
 
     <PropertyGroup>
-        <OutputDir>c:\TESTMSBUILDOUTPUT</OutputDir>
+        <OutputDir>$(MSBuildProjectDirectory)\build</OutputDir>
     </PropertyGroup>
 
     <ItemGroup>

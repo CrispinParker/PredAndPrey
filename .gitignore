@@ -10,6 +10,7 @@ _GeneratedProduct.wxi
 *.log
 out/
 drop/
+build/
 *.lastpatched
 *.t4properties
 *.docstates
