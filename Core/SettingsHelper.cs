@@ -78,7 +78,7 @@
                     {
                         MaxAnimals = 350,
                         ChanceOfMutation = 0.1,
-                        MutationSeverity = 0.07,
+                        MutationSeverity = 0.5,
                         RunSpeed = 1,
                         ShowStatistics = false,
                         EnvironmentSize = EnvironmentSizeOption.Medium

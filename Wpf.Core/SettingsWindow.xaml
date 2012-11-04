@@ -86,6 +86,7 @@
             <Slider
                 DockPanel.Dock="Top"
                 Value="{Binding Path=ChanceOfMutation}"
+                SmallChange="0.1"
                 Minimum="0"
                 Maximum="1" />
 
@@ -101,8 +102,9 @@
             <Slider
                 DockPanel.Dock="Top"
                 Value="{Binding Path=MutationSeverity}"
+                SmallChange="0.1"
                 Minimum="0"
-                Maximum="0.5" />
+                Maximum="1" />
 
             <ToggleButton
                 IsChecked="{Binding Path=ShowStatistics}"

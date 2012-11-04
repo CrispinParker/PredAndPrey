@@ -21,7 +21,7 @@ namespace PredAndPrey.Wpf.Core.Visuals
         {
             get
             {
-                return 0.2d;
+                return 0.3d;
             }
         }
 
